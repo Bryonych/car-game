@@ -7,18 +7,17 @@ import { Card } from "../data/interfaces.tsx";
 function Game(): ReactElement {
     const [todaysImage, setTodaysImage] = useState<string>();
     const [selected, setSelected] = useState<Card | null>(null);
-    const [lastSelected, setLastSelected] = useState<Card | null>(null);
+    const [previouslySelected, setPreviouslySelected] = useState<Card[]>([]);
     const [cards, setCards] = useState<Card[]>([]);
     const [isLoading, setIsLoading] = useState<boolean>(true);
     
-    const handleClick = (card: Card) => {
-        setLastSelected(selected);
-        setSelected(card);
-    };
-    
-    const handleOutsideClick = () => {
-        setLastSelected(selected);
-        setSelected(null);
+    const handleClick = (card: Card | null) => {
+        if (selected === null) {
+          setSelected(card);
+        } else {
+          setPreviouslySelected([...previouslySelected, selected]);
+          setSelected(null);
+        }
     };
 
     useEffect(() => {
@@ -40,7 +39,7 @@ function Game(): ReactElement {
 
     function createCards() {
       let createdCards = [];
-      const colors = ["blue", "red", "green", "yellow", "orange", "gray", "pink", "brown", "black", "purple", "blue", "red", "green", "yellow", "orange"]
+      const colors = ["#D62246", "#8BA6A9", "#3A445D", "#E7BB41", "#DB995A", "#352208", "#B8D8D8", "#3772FF", "#0B6E4F", "#8491A3", "#F15152", "#470FF4", "#F7D488", "#92140C", "#2A1E5C"]
       for (let i = 0; i < 15; i++ ) {
         const c: Card = {
           "id":createdCards.length,
@@ -56,9 +55,9 @@ function Game(): ReactElement {
 
     return isLoading ? <div><p>waiting</p></div>
     : (
-        <div className="relative w-full h-auto p-10 mt-20 ">
-            <img className="absolute z-0 w-full h-full p-1" src={todaysImage} />
-            <div className="w-full h-full grid grid-cols-3 mx-auto relative">
+        <div className="relative w-[80vw] h-auto mt-20 flex justify-center items-center mx-auto">
+            <img className="absolute z-0 w-full h-full p-1 inset-0" src={todaysImage} />
+            <div className="w-full h-full grid grid-cols-5 md:grid-cols-3 relative">
                 {cards.map((card, i) => (
                     <div key={i} className={cn(card.className, "")}>
                     <motion.div
@@ -68,9 +67,9 @@ function Game(): ReactElement {
                         "relative overflow-hidden",
                         selected?.id === card.id
                             ? " cursor-pointer absolute inset-0 h-1/2 md:w-1/2 m-auto z-50 flex justify-center items-center flex-wrap flex-col"
-                            : lastSelected?.id === card.id
-                            ? "z-40 bg-white "
-                            : "bg-white  "
+                            : previouslySelected.includes(card)
+                            ? "-z-40 bg-white"
+                            : "bg-white "
                         )}
                         layoutId={`card-${card.id}`}
                         style={{height:"10vh", width:"full", background:card.color}}
@@ -81,9 +80,9 @@ function Game(): ReactElement {
             </div>
                 ))}
                  <motion.div
-                    onClick={handleOutsideClick}
+                    onClick={() => handleClick(null)}
                     className={cn(
-                    "absolute h-full w-full left-0 top-0 bg-black opacity-0 z-10",
+                    "absolute h-full w-full left-0 top-0 bg-white opacity-0 z-10",
                     selected?.id ? "pointer-events-auto" : "pointer-events-none"
                     )}
                     animate={{ opacity: selected?.id ? 0.3 : 0 }}
@@ -92,21 +91,6 @@ function Game(): ReactElement {
         </div>
     )
 }
-
-const ImageComponent = ({ card }: { card: Card }) => {
-  return (
-    <motion.img
-      layoutId={`image-${card.id}-image`}
-      // background-color="blue"
-      src={card.thumbnail}
-      height="500"
-      width="500"
-      className={cn(
-        "object-cover object-top absolute inset-0 h-full w-full transition duration-200"
-      )}
-    />
-  );
-};
 
 const SelectedCard = ({ selected }: { selected: Card | null }) => {
     return (
@@ -132,13 +116,13 @@ const SelectedCard = ({ selected }: { selected: Card | null }) => {
           }}
           exit={{
             opacity: 0,
-            y: 100,
+            z: 100,
           }}
           transition={{
             duration: 0.3,
             ease: "easeInOut",
           }}
-          className="relative px-8 pb-4 z-[70]"
+          className="relative px-8 pb-4 z-[70] text-white"
         >
           {selected?.content}
         </motion.div>
