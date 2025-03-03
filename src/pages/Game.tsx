@@ -55,24 +55,24 @@ function Game(): ReactElement {
 
     return isLoading ? <div><p>waiting</p></div>
     : (
-        <div className="relative w-[80vw] h-auto mt-20 flex justify-center items-center mx-auto">
-            <img className="absolute z-0 w-full h-full p-1 inset-0" src={todaysImage} />
-            <div className="w-full h-full grid grid-cols-5 md:grid-cols-3 relative">
+        <div className="relative w-[80vw] h-full mt-20 flex justify-center items-center mx-auto">
+            <img className="absolute z-0 w-full max-h-full p-1 inset-0" src={todaysImage} />
+            <div className="w-full h-full min-h-0 grid grid-cols-5 sm:grid-cols-3 relative">
                 {cards.map((card, i) => (
                     <div key={i} className={cn(card.className, "")}>
                     <motion.div
                         onClick={() => handleClick(card)}
                         className={cn(
                         card.className,
-                        "relative overflow-hidden",
+                        "relative overflow-hidden h-[9vh] sm:h-[11vh]",
                         selected?.id === card.id
-                            ? " cursor-pointer absolute inset-0 h-1/2 md:w-1/2 m-auto z-50 flex justify-center items-center flex-wrap flex-col"
+                            ? "rounded-lg cursor-pointer absolute inset-0 h-1/2 md:w-1/2 m-auto z-50 flex justify-center items-center flex-wrap flex-col"
                             : previouslySelected.includes(card)
                             ? "-z-40 bg-white"
                             : "bg-white "
                         )}
                         layoutId={`card-${card.id}`}
-                        style={{height:"10vh", width:"full", background:card.color}}
+                        style={{ background:card.color}}
                     >
                         {selected?.id === card.id && <SelectedCard selected={selected} />}
                         {/* <ImageComponent card={card} /> */}
