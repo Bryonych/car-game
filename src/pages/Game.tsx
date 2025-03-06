@@ -3,13 +3,17 @@ import { AnimatePresence, motion } from "framer-motion";
 import { cn } from "../../lib/utils";
 import { getTodaysCar } from '../data/getData.tsx';
 import { Card } from "../data/interfaces.tsx";
+import { FormControl, InputLabel, Select, MenuItem } from "@mui/material";
 
 function Game(): ReactElement {
     const [todaysImage, setTodaysImage] = useState<string>();
+    const [todaysCarInfo, setTodaysCarInfo] = useState<{}>();
     const [selected, setSelected] = useState<Card | null>(null);
     const [previouslySelected, setPreviouslySelected] = useState<Card[]>([]);
     const [cards, setCards] = useState<Card[]>([]);
     const [isLoading, setIsLoading] = useState<boolean>(true);
+    const [selection, setSelection] = useState<string>();
+    const [guessOptions, setGuessOptions] = useState<string[]>([]);
     
     const handleClick = (card: Card | null) => {
         if (selected === null) {
@@ -20,11 +24,17 @@ function Game(): ReactElement {
         }
     };
 
+    const handleSelection = (guess: string) => {
+      setSelection(guess);
+    }
+
     useEffect(() => {
         createCards();
         if (todaysImage === undefined) {
             getTodaysCar().then(res => {
-                setTodaysImage(res);
+              setGuessOptions(res['carlist']);
+              setTodaysImage(res['image']);
+              setTodaysCarInfo(res['cardata']);
             });
         }
     }, []);
@@ -41,9 +51,13 @@ function Game(): ReactElement {
       let createdCards = [];
       const colors = ["#D62246", "#8BA6A9", "#3A445D", "#E7BB41", "#DB995A", "#352208", "#B8D8D8", "#3772FF", "#0B6E4F", "#8491A3", "#F15152", "#470FF4", "#F7D488", "#92140C", "#2A1E5C"]
       for (let i = 0; i < 15; i++ ) {
+        let content: string = "";
+        if (i < 6 && todaysCarInfo != undefined) {
+          content = Object.entries(todaysCarInfo)[i][0] + ": " + Object.entries(todaysCarInfo)[i][1];
+        }
         const c: Card = {
           "id":createdCards.length,
-          "content": "Test content",
+          "content": content,
           "className": "",
           "thumbnail": "",
           "color": colors[createdCards.length]
@@ -55,6 +69,7 @@ function Game(): ReactElement {
 
     return isLoading ? <div><p>waiting</p></div>
     : (
+      <div>
         <div className="relative w-[80vw] h-full mt-20 flex justify-center items-center mx-auto">
             <img className="absolute z-0 w-full max-h-full p-1 inset-0" src={todaysImage} />
             <div className="w-full h-full min-h-0 grid grid-cols-5 sm:grid-cols-3 relative">
@@ -89,6 +104,22 @@ function Game(): ReactElement {
                 />
             </div>
         </div>
+          <FormControl fullWidth>
+            <InputLabel id="guess-select">Guess</InputLabel>
+            <Select
+              labelId="guess-select"
+              id="guess-select"
+              value={selection}
+              label="Guess"
+              onChange={(item) => {handleSelection}}
+            >
+              {guessOptions.map((guess, i) => (
+                <MenuItem key={i} value={guess}>{guess}</MenuItem>
+              ))}
+            </Select>
+          </FormControl>
+      </div>
+        
     )
 }
 

@@ -7,3 +7,9 @@ export interface Card {
     thumbnail: string,
     color: string,
   }
+
+export interface CarData {
+    image: string,
+    carlist: [],
+    cardata: {},
+  }
