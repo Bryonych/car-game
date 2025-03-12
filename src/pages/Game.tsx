@@ -1,19 +1,22 @@
 import React, { ReactElement, useEffect, useState } from 'react';
 import { AnimatePresence, motion } from "framer-motion";
 import { cn } from "../../lib/utils";
-import { getTodaysCar } from '../data/getData.tsx';
+import { getTodaysCar, getRandomNumbers } from '../data/getData.tsx';
 import { Card } from "../data/interfaces.tsx";
 import { FormControl, InputLabel, Select, MenuItem } from "@mui/material";
 
 function Game(): ReactElement {
     const [todaysImage, setTodaysImage] = useState<string>();
-    const [todaysCarInfo, setTodaysCarInfo] = useState<{}>();
+    const [todaysCarInfo, setTodaysCarInfo] = useState<string[]>([]);
     const [selected, setSelected] = useState<Card | null>(null);
     const [previouslySelected, setPreviouslySelected] = useState<Card[]>([]);
     const [cards, setCards] = useState<Card[]>([]);
     const [isLoading, setIsLoading] = useState<boolean>(true);
-    const [selection, setSelection] = useState<string>();
+    const [selection, setSelection] = useState<string>('');
     const [guessOptions, setGuessOptions] = useState<string[]>([]);
+    const [answer, setAnswer] = useState<string>('');
+    const [numGuesses, setNumGuesses] = useState<number>(0);
+    const [correct, setCorrect] = useState<boolean>();
     
     const handleClick = (card: Card | null) => {
         if (selected === null) {
@@ -21,23 +24,40 @@ function Game(): ReactElement {
         } else {
           setPreviouslySelected([...previouslySelected, selected]);
           setSelected(null);
+          setNumGuesses(numGuesses+1);
         }
     };
 
     const handleSelection = (guess: string) => {
       setSelection(guess);
+      if (selection === answer) {
+        setCorrect(true);
+      } else {
+        setCorrect(false);
+      }
+      console.log(correct);
     }
 
     useEffect(() => {
-        createCards();
         if (todaysImage === undefined) {
             getTodaysCar().then(res => {
               setGuessOptions(res['carlist']);
               setTodaysImage(res['image']);
-              setTodaysCarInfo(res['cardata']);
+              let items: string[] = [];
+              for (const [key, value] of Object.entries(res['cardata'])) {
+                if (key !== "Year" && key !== "Model" && key !== "Make" && key !== "S3-Key") {
+                  items.push(key + " :" + value);
+                }
+              }
+              setTodaysCarInfo(items);
+              setAnswer(res['cardata']['S3-Key']);
             });
         }
     }, []);
+
+    useEffect(() => {
+        createCards();
+    }, [todaysCarInfo]);
 
     useEffect(() => {
         console.log(cards)
@@ -50,10 +70,13 @@ function Game(): ReactElement {
     function createCards() {
       let createdCards = [];
       const colors = ["#D62246", "#8BA6A9", "#3A445D", "#E7BB41", "#DB995A", "#352208", "#B8D8D8", "#3772FF", "#0B6E4F", "#8491A3", "#F15152", "#470FF4", "#F7D488", "#92140C", "#2A1E5C"]
+      const randomCards = getRandomNumbers(14,6);
+      let idx = 0;
       for (let i = 0; i < 15; i++ ) {
         let content: string = "";
-        if (i < 6 && todaysCarInfo != undefined) {
-          content = Object.entries(todaysCarInfo)[i][0] + ": " + Object.entries(todaysCarInfo)[i][1];
+        if (randomCards.has(i) && idx < 6 && todaysCarInfo != undefined) {
+          content = todaysCarInfo[idx];
+          idx ++;
         }
         const c: Card = {
           "id":createdCards.length,
@@ -118,6 +141,8 @@ function Game(): ReactElement {
               ))}
             </Select>
           </FormControl>
+          <div><p>Number of squares removed: {numGuesses}</p></div>
+          {correct? <p>Correct!</p> : <p>Try again</p>}
       </div>
         
     )

@@ -1,9 +1,9 @@
 import { CarData } from './interfaces';
 
 export async function getTodaysCar() {
-    // Need to update URL for deployment
-    const api = 'https://x02ge7ylrf.execute-api.ap-southeast-2.amazonaws.com/dev/car'
-    const res = await fetch(api);
+    const api = process.env.API_URL;
+    console.log(api);
+    const res = await fetch(api!);
     const resJson = await res.json();
     const imgBlob = base64ToBlob(resJson.image);
     const imageObjectURL = URL.createObjectURL(imgBlob);
@@ -27,4 +27,12 @@ function base64ToBlob(base64: string) {
         byteArrays.push(new Uint8Array(byteNumbers));
     }
     return new Blob(byteArrays, { type: "image/jpeg" });
+}
+
+export function getRandomNumbers(end: number, total: number) {
+    const numSet = new Set();
+    while (numSet.size <= total) {
+        numSet.add(Math.floor(Math.random() * end));
+    }
+    return numSet;
 }
