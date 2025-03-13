@@ -4,6 +4,7 @@ import { cn } from "../../lib/utils";
 import { getTodaysCar, getRandomNumbers } from '../data/getData.tsx';
 import { Card } from "../data/interfaces.tsx";
 import { FormControl, InputLabel, Select, MenuItem } from "@mui/material";
+import { Alert, Button } from '@mui/material';
 
 function Game(): ReactElement {
     const [todaysImage, setTodaysImage] = useState<string>();
@@ -28,15 +29,17 @@ function Game(): ReactElement {
         }
     };
 
-    const handleSelection = (guess: string) => {
-      setSelection(guess);
-      if (selection === answer) {
+    const handleSelection = (guess: any) => {
+      setSelection(guess.target.value);
+    }
+
+    useEffect(() => {
+      if (answer !== '' && selection === answer) {
         setCorrect(true);
       } else {
         setCorrect(false);
       }
-      console.log(correct);
-    }
+    }, [selection]);
 
     useEffect(() => {
         if (todaysImage === undefined) {
@@ -50,7 +53,7 @@ function Game(): ReactElement {
                 }
               }
               setTodaysCarInfo(items);
-              setAnswer(res['cardata']['S3-Key']);
+              setAnswer((res['cardata']['S3-Key']).replaceAll('-', ' '));
             });
         }
     }, []);
@@ -127,6 +130,7 @@ function Game(): ReactElement {
                 />
             </div>
         </div>
+        <div>
           <FormControl fullWidth>
             <InputLabel id="guess-select">Guess</InputLabel>
             <Select
@@ -134,15 +138,16 @@ function Game(): ReactElement {
               id="guess-select"
               value={selection}
               label="Guess"
-              onChange={(item) => {handleSelection}}
+              onChange={(item) => {handleSelection(item)}}
             >
               {guessOptions.map((guess, i) => (
                 <MenuItem key={i} value={guess}>{guess}</MenuItem>
               ))}
             </Select>
           </FormControl>
+          </div>
           <div><p>Number of squares removed: {numGuesses}</p></div>
-          {correct? <p>Correct!</p> : <p>Try again</p>}
+          {!correct && selection? <Alert severity="error">Incorrect. Try again</Alert> : <></>}
       </div>
         
     )
