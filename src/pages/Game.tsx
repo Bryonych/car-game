@@ -13,19 +13,30 @@ function Game(): ReactElement {
     const [previouslySelected, setPreviouslySelected] = useState<Card[]>([]);
     const [cards, setCards] = useState<Card[]>([]);
     const [isLoading, setIsLoading] = useState<boolean>(true);
-    const [selection, setSelection] = useState<string>('');
+    const [selection, setSelection] = useState<string>("");
     const [guessOptions, setGuessOptions] = useState<string[]>([]);
-    const [answer, setAnswer] = useState<string>('');
+    const [answer, setAnswer] = useState<string>("");
     const [numGuesses, setNumGuesses] = useState<number>(0);
-    const [correct, setCorrect] = useState<boolean>();
+    const [correct, setCorrect] = useState<boolean | undefined>(undefined);
+    const [canGuess, setCanGuess] = useState<boolean>(false);
+    const [finished, setFinished] = useState<boolean>(false);
     
     const handleClick = (card: Card | null) => {
+        console.log(correct);
+        console.log(canGuess);
         if (selected === null) {
           setSelected(card);
+          setSelection("");
+          setCorrect(undefined);
         } else {
           setPreviouslySelected([...previouslySelected, selected]);
           setSelected(null);
-          setNumGuesses(numGuesses+1);
+          if (!finished) {
+            setNumGuesses(numGuesses+1);
+          }
+          if (!correct || correct === undefined) {
+            setCanGuess(true);
+          }
         }
     };
 
@@ -33,13 +44,29 @@ function Game(): ReactElement {
       setSelection(guess.target.value);
     }
 
-    useEffect(() => {
-      if (answer !== '' && selection === answer) {
+    const handleSubmit = () => {
+      if (answer !== "" && selection === answer) {
         setCorrect(true);
+        setFinished(true);
       } else {
         setCorrect(false);
+        setSelection("");
       }
-    }, [selection]);
+      setCanGuess(false);
+    }
+
+    const handleShare = () => {
+      const text = "I guessed today's car in " + numGuesses + " blocks";
+      if (navigator.share) {
+      navigator.share({
+        title: "Car Game Result",
+        text: text,
+        url: "https://test.com"
+      }).catch((error) => console.log("Sharing failed", error));
+      } else {
+        alert("Sharing not supported on this browser");
+      }
+    }
 
     useEffect(() => {
         if (todaysImage === undefined) {
@@ -130,7 +157,7 @@ function Game(): ReactElement {
                 />
             </div>
         </div>
-        <div>
+        <div className="flex m-5">
           <FormControl fullWidth>
             <InputLabel id="guess-select">Guess</InputLabel>
             <Select
@@ -138,6 +165,7 @@ function Game(): ReactElement {
               id="guess-select"
               value={selection}
               label="Guess"
+              disabled={!canGuess || finished}
               onChange={(item) => {handleSelection(item)}}
             >
               {guessOptions.map((guess, i) => (
@@ -145,9 +173,14 @@ function Game(): ReactElement {
               ))}
             </Select>
           </FormControl>
+          <Button variant="contained" disabled={selection===""} onClick={handleSubmit}>Submit</Button>
           </div>
-          <div><p>Number of squares removed: {numGuesses}</p></div>
-          {!correct && selection? <Alert severity="error">Incorrect. Try again</Alert> : <></>}
+          <div><p>Number of blocks removed: {numGuesses}</p></div>
+          {correct==false? <Alert severity="error">Incorrect. Try again</Alert> : 
+          finished? <div className="flex">
+            <Alert severity="info">Correct! You guessed {answer} correctly in {numGuesses} blocks</Alert> 
+            <Button variant="contained" onClick={handleShare}>Share</Button>
+            </div>: <></>}
       </div>
         
     )
