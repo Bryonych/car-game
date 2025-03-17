@@ -22,8 +22,6 @@ function Game(): ReactElement {
     const [finished, setFinished] = useState<boolean>(false);
     
     const handleClick = (card: Card | null) => {
-        console.log(correct);
-        console.log(canGuess);
         if (selected === null) {
           setSelected(card);
           setSelection("");
@@ -70,12 +68,13 @@ function Game(): ReactElement {
 
     useEffect(() => {
         if (todaysImage === undefined) {
-            getTodaysCar().then(res => {
+            let todaysDate = new Date().toLocaleString("en-GB");
+            getTodaysCar(todaysDate).then(res => {
               setGuessOptions(res['carlist']);
               setTodaysImage(res['image']);
               let items: string[] = [];
               for (const [key, value] of Object.entries(res['cardata'])) {
-                if (key !== "Year" && key !== "Model" && key !== "Make" && key !== "S3-Key") {
+                if (key !== "Year" && key !== "Model" && key !== "Make" && key !== "S3-Key" && key !== "Date") {
                   items.push(key + " :" + value);
                 }
               }
