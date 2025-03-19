@@ -50,11 +50,15 @@ function Game(): ReactElement {
         setCorrect(false);
         setSelection("");
       }
+      if (numGuesses == 15 && !correct) {
+        setFinished(true);
+      }
       setCanGuess(false);
     }
 
-    const handleShare = () => {
-      const text = "I guessed today's car in " + numGuesses + " blocks";
+    const handleShare = (guessed: boolean) => {
+      let text = guessed? "I guessed today's car after removing " + numGuesses + " blocks" :
+              "I didn't guess today's car after removing 15 blocks";
       if (navigator.share) {
       navigator.share({
         title: "Car Game Result",
@@ -68,7 +72,8 @@ function Game(): ReactElement {
 
     useEffect(() => {
         if (todaysImage === undefined) {
-            let todaysDate = new Date().toLocaleString("en-GB");
+            // let todaysDate = new Date().toLocaleString("en-GB");
+            let todaysDate = "18/03/2025";
             getTodaysCar(todaysDate).then(res => {
               setGuessOptions(res['carlist']);
               setTodaysImage(res['image']);
@@ -131,7 +136,7 @@ function Game(): ReactElement {
                         onClick={() => handleClick(card)}
                         className={cn(
                         card.className,
-                        "relative overflow-hidden h-[9vh] sm:h-[11vh]",
+                        "relative overflow-hidden h-[5vh] sm:h-[11vh]",
                         selected?.id === card.id
                             ? "rounded-lg cursor-pointer absolute inset-0 h-1/2 md:w-1/2 m-auto z-50 flex justify-center items-center flex-wrap flex-col"
                             : previouslySelected.includes(card)
@@ -174,12 +179,16 @@ function Game(): ReactElement {
           </FormControl>
           <Button variant="contained" disabled={selection===""} onClick={handleSubmit}>Submit</Button>
           </div>
-          <div><p>Number of blocks removed: {numGuesses}</p></div>
-          {correct==false? <Alert severity="error">Incorrect. Try again</Alert> : 
-          finished? <div className="flex">
-            <Alert severity="info">Correct! You guessed {answer} correctly in {numGuesses} blocks</Alert> 
-            <Button variant="contained" onClick={handleShare}>Share</Button>
-            </div>: <></>}
+          <div className="flex justify-center"><p>Number of blocks removed: {numGuesses}</p></div>
+          {correct==false && !finished? <Alert severity="error">Incorrect. Try again</Alert> :
+            correct==false && finished? <div className="flex justify-center">
+              <Alert severity="info">Hard luck. The correct answer was {answer}</Alert> 
+              <Button variant="contained" onClick={() => handleShare(false)}>Share</Button>
+              </div>: 
+            finished? <div className="flex justify-center">
+              <Alert severity="success">Correct! You guessed {answer} correctly after removing {numGuesses} blocks</Alert> 
+              <Button variant="contained" onClick={() => handleShare(true)}>Share</Button>
+              </div>: <></>}
       </div>
         
     )
