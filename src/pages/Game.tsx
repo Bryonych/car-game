@@ -3,7 +3,7 @@ import { AnimatePresence, motion } from "framer-motion";
 import { cn } from "../../lib/utils";
 import { getTodaysCar, getRandomNumbers } from '../data/getData.tsx';
 import { Card } from "../data/interfaces.tsx";
-import { FormControl, InputLabel, Select, MenuItem } from "@mui/material";
+import { FormControl, InputLabel, Autocomplete, TextField } from "@mui/material";
 import { Alert, Button } from '@mui/material';
 
 function Game(): ReactElement {
@@ -163,19 +163,13 @@ function Game(): ReactElement {
         </div>
         <div className="flex m-5">
           <FormControl fullWidth>
-            <InputLabel id="guess-select">Guess</InputLabel>
-            <Select
-              labelId="guess-select"
-              id="guess-select"
-              value={selection}
-              label="Guess"
+            <Autocomplete
+              options={guessOptions}
+              renderInput={(params) => <TextField {...params} label="Guess" />}
               disabled={!canGuess || finished}
               onChange={(item) => {handleSelection(item)}}
             >
-              {guessOptions.map((guess, i) => (
-                <MenuItem key={i} value={guess}>{guess}</MenuItem>
-              ))}
-            </Select>
+            </Autocomplete>
           </FormControl>
           <Button variant="contained" disabled={selection===""} onClick={handleSubmit}>Submit</Button>
           </div>

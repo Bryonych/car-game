@@ -11,7 +11,7 @@ export async function getTodaysCar(date: string) {
     const imageObjectURL = URL.createObjectURL(imgBlob);
     const carData = {
         "image": imageObjectURL,
-        "carlist": resJson.carlist,
+        "carlist": (resJson.carlist).sort(),
         "cardata": resJson.cardata
     }
     return carData;
