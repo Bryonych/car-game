@@ -2,8 +2,9 @@ import React, { ReactElement, useEffect, useState } from 'react';
 import { AnimatePresence, motion } from "framer-motion";
 import { cn } from "../../lib/utils";
 import { getTodaysCar, getRandomNumbers } from '../data/getData.tsx';
-import { Card } from "../data/interfaces.tsx";
+import { Card, OptionType } from "../data/interfaces.tsx";
 import { FormControl, InputLabel, Autocomplete, TextField } from "@mui/material";
+import { createFilterOptions } from "@mui/material/Autocomplete";
 import { Alert, Button } from '@mui/material';
 
 function Game(): ReactElement {
@@ -13,7 +14,7 @@ function Game(): ReactElement {
     const [previouslySelected, setPreviouslySelected] = useState<Card[]>([]);
     const [cards, setCards] = useState<Card[]>([]);
     const [isLoading, setIsLoading] = useState<boolean>(true);
-    const [selection, setSelection] = useState<string>("");
+    const [selection, setSelection] = useState<string | null>("");
     const [guessOptions, setGuessOptions] = useState<string[]>([]);
     const [answer, setAnswer] = useState<string>("");
     const [numGuesses, setNumGuesses] = useState<number>(0);
@@ -38,11 +39,8 @@ function Game(): ReactElement {
         }
     };
 
-    const handleSelection = (guess: any) => {
-      setSelection(guess.target.value);
-    }
-
     const handleSubmit = () => {
+      console.log(answer + " " + selection);
       if (answer !== "" && selection === answer) {
         setCorrect(true);
         setFinished(true);
@@ -69,6 +67,12 @@ function Game(): ReactElement {
         alert("Sharing not supported on this browser");
       }
     }
+
+    const filterOptions = (options: string[], { inputValue }: { inputValue: string }) => {
+      return options
+        .filter((option) => option.toLowerCase().includes(inputValue.toLowerCase()))
+        .slice(0, 10); // Limit results to 10
+    };
 
     useEffect(() => {
         if (todaysImage === undefined) {
@@ -165,15 +169,16 @@ function Game(): ReactElement {
           <FormControl fullWidth>
             <Autocomplete
               options={guessOptions}
+              filterOptions={filterOptions}
               renderInput={(params) => <TextField {...params} label="Guess" />}
               disabled={!canGuess || finished}
-              onChange={(item) => {handleSelection(item)}}
+              onChange={(event: any, newValue: string | null) => { setSelection(newValue);}}
             >
             </Autocomplete>
           </FormControl>
           <Button variant="contained" disabled={selection===""} onClick={handleSubmit}>Submit</Button>
           </div>
-          <div className="flex justify-center"><p>Number of blocks removed: {numGuesses}</p></div>
+          <div className="flex justify-center font-serif"><p>Number of blocks removed: {numGuesses}</p></div>
           {correct==false && !finished? <Alert severity="error">Incorrect. Try again</Alert> :
             correct==false && finished? <div className="flex justify-center">
               <Alert severity="info">Hard luck. The correct answer was {answer}</Alert> 
