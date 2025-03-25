@@ -71,13 +71,13 @@ function Game(): ReactElement {
     const filterOptions = (options: string[], { inputValue }: { inputValue: string }) => {
       return options
         .filter((option) => option.toLowerCase().includes(inputValue.toLowerCase()))
-        .slice(0, 10); // Limit results to 10
+        .slice(0, 50); // Limit results to 10
     };
 
     useEffect(() => {
         if (todaysImage === undefined) {
             // let todaysDate = new Date().toLocaleString("en-GB");
-            let todaysDate = "18/03/2025";
+            let todaysDate = "19/03/2025";
             getTodaysCar(todaysDate).then(res => {
               setGuessOptions(res['carlist']);
               setTodaysImage(res['image']);
@@ -131,7 +131,8 @@ function Game(): ReactElement {
     return isLoading ? <div><p>waiting</p></div>
     : (
       <div>
-        <div className="relative w-[80vw] h-full mt-20 flex justify-center items-center mx-auto">
+        <p className="flex justify-center font-serif text-blue-800 mt-15 sm:mt-9">Remove a block to make a guess</p>
+        <div className="relative w-[80vw] h-full sm:w-[60vw] mt-6 flex justify-center items-center mx-auto">
             <img className="absolute z-0 w-full max-h-full p-1 inset-0" src={todaysImage} />
             <div className="w-full h-full min-h-0 grid grid-cols-5 sm:grid-cols-3 relative">
                 {cards.map((card, i) => (
@@ -140,7 +141,7 @@ function Game(): ReactElement {
                         onClick={() => handleClick(card)}
                         className={cn(
                         card.className,
-                        "relative overflow-hidden h-[5vh] sm:h-[11vh]",
+                        "relative overflow-hidden h-[8vh] sm:h-[11vh]",
                         selected?.id === card.id
                             ? "rounded-lg cursor-pointer absolute inset-0 h-1/2 md:w-1/2 m-auto z-50 flex justify-center items-center flex-wrap flex-col"
                             : previouslySelected.includes(card)
@@ -165,7 +166,7 @@ function Game(): ReactElement {
                 />
             </div>
         </div>
-        <div className="flex m-5">
+        <div className="flex justify-self-center pb-100% -mb-100% m-5 sm:w-[70vw]">
           <FormControl fullWidth>
             <Autocomplete
               options={guessOptions}
@@ -178,13 +179,13 @@ function Game(): ReactElement {
           </FormControl>
           <Button variant="contained" disabled={selection===""} onClick={handleSubmit}>Submit</Button>
           </div>
-          <div className="flex justify-center font-serif"><p>Number of blocks removed: {numGuesses}</p></div>
+          <div className="flex justify-center font-serif text-blue-800"><p>Number of blocks removed: {numGuesses}</p></div>
           {correct==false && !finished? <Alert severity="error">Incorrect. Try again</Alert> :
-            correct==false && finished? <div className="flex justify-center">
+            correct==false && finished? <div className="flex justify-center mt-5 sm:mt-1">
               <Alert severity="info">Hard luck. The correct answer was {answer}</Alert> 
               <Button variant="contained" onClick={() => handleShare(false)}>Share</Button>
               </div>: 
-            finished? <div className="flex justify-center">
+            finished? <div className="flex justify-center mt-5 sm:mt-1">
               <Alert severity="success">Correct! You guessed {answer} correctly after removing {numGuesses} blocks</Alert> 
               <Button variant="contained" onClick={() => handleShare(true)}>Share</Button>
               </div>: <></>}
