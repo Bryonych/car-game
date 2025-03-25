@@ -9,11 +9,16 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@aws-cdk/aws-apigateway": "^1.204.0",
+    "@aws-cdk/aws-dynamodb": "^1.204.0",
+    "@aws-cdk/aws-lambda": "^1.204.0",
     "@emotion/react": "^11.14.0",
     "@emotion/styled": "^11.14.0",
     "@mui/material": "^6.4.6",
     "@tailwindcss/postcss": "^4.0.8",
+    "aws-cdk-lib": "^2.185.0",
     "clsx": "^2.1.1",
+    "constructs": "^10.4.2",
     "motion": "^12.4.7",
     "next": "15.1.7",
     "postcss": "^8.5.3",
