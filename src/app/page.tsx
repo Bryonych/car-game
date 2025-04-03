@@ -1,10 +1,8 @@
 'use client'
 
-import React, { ReactElement, useEffect, useState } from 'react';
+import React, { ReactElement, useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom'; 
-import Game from '../pages/Game.tsx';
-import { Card } from "../data/interfaces.tsx";
-
+import Game from './pages/Game.tsx';
 
 function App() : ReactElement {
 
