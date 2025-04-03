@@ -65,6 +65,7 @@ describe('Render UI Tests', () => {
         expect(dropDown).toHaveProperty('disabled', false);
         await userEvent.type(dropDown, "cartwo");
         await userEvent.click(screen.getByText("cartwo"));
+        // Check Button is now enabled
         expect(button).toHaveProperty('disabled', false);
     });
 });

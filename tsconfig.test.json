@@ -1,3 +1,4 @@
+// Test config, as jsx resets to preserve when npm run dev is run
 {
     "extends": "./tsconfig.json",
     "compilerOptions": {

@@ -5,6 +5,7 @@ module.exports = {
     testEnvironmentOptions: {
       customExportConditions: ['node'],
     },
+    // import test config
     globals: {
       'ts-jest': {
         tsConfig: 'tsconfig.test.json'
