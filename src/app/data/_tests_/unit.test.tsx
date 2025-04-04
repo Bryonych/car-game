@@ -32,7 +32,7 @@ describe('Get data tests', () => {
     });
 
     it("should return the right number of numbers within the range", () => {
-        const result: Set<any> = getRandomNumbers(1000, 5);
+        const result: Set<number> = getRandomNumbers(1000, 5);
         expect(Array.from(result)).toHaveLength(5);
         result.forEach((x) => { 
             expect(x).toBeLessThan(1001); 

@@ -18,25 +18,23 @@ jobs:
       -uses: actions/checkout@v3
       
       -name: install web app dependencies
-      working-directory: 
       run: nump ci
 
       -name: build web app
-      working-directory:
       run: npm run build
 
       -name: install aws CDK
       run: sudo npm i -g aws-cdk
 
       -name: install deployment dependencies
-      working-directory:
+      working-directory: ./cdk
       run: npm ci
 
       -name: cdk synth
-      working-directory:
+      working-directory: ./cdk
       run: cdk synth
 
-      -name: cdk deploy
+      -name: cdk deploy ./cdk
       working-directory:
       env:
         AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}

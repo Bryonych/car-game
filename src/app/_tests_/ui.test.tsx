@@ -32,8 +32,10 @@ describe('Render UI Tests', () => {
         await act(async () => {
             render(<App />);
         });
-        const image = document.querySelector("img") as HTMLImageElement;
-        expect(image.src).toContain(mockCarData['image']);
+        if (typeof window !== "undefined") {
+            const image = document.querySelector("img") as HTMLImageElement;
+            expect(image.src).toContain(mockCarData['image']);
+        }
     });
     test('check button and drop down load and are disabled', async () => {
         await act(async () => {

@@ -3,7 +3,7 @@
 # dependencies
 /node_modules
 /cdk/node_modules
-/cdk
+/cdk/.env
 /.pnp
 .pnp.*
 .yarn/*
