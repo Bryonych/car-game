@@ -4,6 +4,7 @@
 /node_modules
 /cdk/node_modules
 /cdk/.env
+/cdk/cdk.out
 /.pnp
 .pnp.*
 .yarn/*
