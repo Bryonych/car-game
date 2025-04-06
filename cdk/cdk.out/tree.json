@@ -22,7 +22,7 @@
                     "attributes": {
                       "aws:cdk:cloudformation:type": "AWS::S3::Bucket",
                       "aws:cdk:cloudformation:props": {
-                        "bucketName": "car-game",
+                        "bucketName": "car-game-75",
                         "publicAccessBlockConfiguration": {
                           "blockPublicAcls": true,
                           "blockPublicPolicy": true,
@@ -332,12 +332,10 @@
                           "customErrorResponses": [
                             {
                               "errorCachingMinTtl": 600,
-                              "errorCode": 403,
-                              "responseCode": 403,
-                              "responsePagePath": "./error.html"
+                              "errorCode": 403
                             }
                           ],
-                          "defaultRootObject": "page.tsx",
+                          "defaultRootObject": "index.html",
                           "httpVersion": "http2",
                           "ipv6Enabled": true
                         }
@@ -359,8 +357,6 @@
                       "errorResponses": [
                         {
                           "httpStatus": "*",
-                          "responseHttpStatus": "*",
-                          "responsePagePath": "*",
                           "ttl": "*"
                         }
                       ],
@@ -1014,7 +1010,7 @@
                           {
                             "Fn::Sub": "cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}"
                           },
-                          "/d1a7829a4f67ccc2536a7a7061530df3930cdf5995313daa2fc06459c126f4e3.json"
+                          "/ab784c315fb1151b92877b354474a415243a122f5d1112c0803edd2a56889126.json"
                         ]
                       ]
                     }
@@ -1090,22 +1086,7 @@
                           "s3Key": "e4a4802e2757c0c52f059d01ba7e62fd1e0380346e0aed9e2869607d0a1f2a27.zip"
                         },
                         "handler": "lambda_function.lambda_handler",
-                        "role": {
-                          "Fn::Join": [
-                            "",
-                            [
-                              "arn:",
-                              {
-                                "Ref": "AWS::Partition"
-                              },
-                              ":iam::",
-                              {
-                                "Ref": "AWS::AccountId"
-                              },
-                              ":role/retrieveCar-role-i2tj7iua"
-                            ]
-                          ]
-                        },
+                        "role": "arn:aws:iam::536527325565:role/service-role/retrieveCar-role-i2tj7iua",
                         "runtime": "python3.13",
                         "timeout": 60
                       }
@@ -1519,7 +1500,7 @@
                           {
                             "Fn::Sub": "cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}"
                           },
-                          "/56e9b8dcbf231e845eeeab94332ba88d8a48066e461b26cc87b67c8b19b4e139.json"
+                          "/7d413815178e57c39afabcc651a671a0534237e843b03e8c4452227c200c38ee.json"
                         ]
                       ]
                     }

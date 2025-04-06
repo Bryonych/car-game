@@ -3,7 +3,7 @@
   "GameBucketA1B37EA9": {
    "Type": "AWS::S3::Bucket",
    "Properties": {
-    "BucketName": "car-game",
+    "BucketName": "car-game-75",
     "PublicAccessBlockConfiguration": {
      "BlockPublicAcls": true,
      "BlockPublicPolicy": true,
@@ -235,9 +235,7 @@
      "CustomErrorResponses": [
       {
        "ErrorCachingMinTTL": 600,
-       "ErrorCode": 403,
-       "ResponseCode": 403,
-       "ResponsePagePath": "./error.html"
+       "ErrorCode": 403
       }
      ],
      "DefaultCacheBehavior": {
@@ -251,7 +249,7 @@
       "TargetOriginId": "CdkStackFrontendStackSiteDistributionOrigin118975267",
       "ViewerProtocolPolicy": "redirect-to-https"
      },
-     "DefaultRootObject": "page.tsx",
+     "DefaultRootObject": "index.html",
      "Enabled": true,
      "HttpVersion": "http2",
      "IPV6Enabled": true,
@@ -341,7 +339,7 @@
      }
     ],
     "SourceObjectKeys": [
-     "0356416ce30831bd84bc8bc674f68eced6812305cefebf6e78324dbf2e923e4a.zip"
+     "0b2220fee4169ab9597eec961a4b17f9e11667579a88f6cc8f701c31057322aa.zip"
     ],
     "DestinationBucketName": {
      "Ref": "GameBucketA1B37EA9"
@@ -535,7 +533,7 @@
   "CDKMetadata": {
    "Type": "AWS::CDK::Metadata",
    "Properties": {
-    "Analytics": "v2:deflate64:H4sIAAAAAAAA/9VVTW/bMAz9LfVxcLwmvRS9pem+gK4NkmKXoAhki0nUyKKhjwSZ4f8+SrZcd0gx7LDDDoYNPop8fKToSTa+HmfjC3Y0o4LvR1LkWf0AxgJfWlbsUwLWtbnK6ltX7MGu6iQPHw+shOQm+ZCkSeVyKYoFMD4tCjAmudkwaSBNconFfh7QiIQDGko8MDlHAk5k45RP44kQ5izegQQLj/kLFJZOWO2geU5nG9UySNtXe7inEyIP3Vq8c75lBlbPTVpIdHyjUdmsvhOUVOTOClQUhsOGOWkXiLZN3XEthRKlK+caLRYof4A2dIDAp/vlYZxN1pPLyZj8QGvUCzAVKgNEm0LurK1IROte627hr+8Bc7alx+46s7Uy1hX53cKOHQTq5KZOUIutUJ1vgWWlg8ReMFJSSjwC/w52hzzmOQg4go619Ppr4EJTySOLI0/aJA2lXF49hgRt62Ykmka5ojhB5TOYNw9VbVJzta45VBJPJZDmbTPuekPKjAFrsql/NalkZc5ZVlOYe3YC3WmdLoXa0kig+uxU0bXLOcG7oqT39YoHagmog6AO+/i9g487d7pCE2fWihLQRQ8iH4GSZlOfluJnNEC1gxI0k0uLmvozgA5V8fq1dLkCG5XeCAnmRNeojCRw+0Wjq/p28RhlxxSXoCMVpzy3tu9pnTDue8g4s6wtMfX9fT4PeQWocwOd/ijO/yTEpyH714Jb8H5YabsJog5NKliZ1f3KMHT3wEcxw+jLgXVVN21cS0tw94SLoMuqT3fO7Pn83Yn3054xh4q6reajUB10fVwJ/Pbkt0GlhSpExSTdSXR9f1sff2AatOgqTkqmqIc8BBTdwhraTlPd+UZGTziPKeLmeCvTNyWFgh57W/p74L+IG6TyJTdNOnPGYkmLGZ0uoB+a4NEZf/Oh9XgQHLT/aaRhNVEvaNdtw9pztnK2W1XrcLvW9IsspMimRzOTIoyh558OcxJhRYOevZiPh/E1/XOzy4sXI8Som/Js0b5/AU9ImL+PBwAA"
+    "Analytics": "v2:deflate64:H4sIAAAAAAAA/9VVTW/bMAz9LfNxcLwmvRS9Jek2DOjaICl2CYpAtphEjSwa+kiQGf7vo2TLdYcUww477GSDpB4fHylqko1vxtn4AzuZUcEPIynyrH4AY4GvLCsOKTk2tbnO6pkrDmDXdZKHnwdWQnKbfEzSpHK5FMUSGJ8WBRiT3G6ZNJAmucTisAje6AkHNJR4ZHKB5DiTjVM+jWfyMGfxDiRYeMxfoLB0wmoHzXM636qWQdp+2sM9nYA8DGv9XfCMGVg/N2kh0fGtRmWz+k5QUpE7K1ARDIctc9IuEW2buuNaCiVKVy40WixQ/gBt6AA5n+5Xx3E22UyuJmOKA61RL8FUqAwQbYLcW1uRiNbFuq2VkWfMN4M9OwrUyW2doBY7obrYAstKB8m8AKSMlHgC/h3sHnkEPAo4gY7cej01cKGphJHFkSdhkoZSrq4fQ4K2FXMSQaNcE05Q7YLPm4cqNam53tQcKonnEkjDVty73pAyY8CabOo/TSpZmXOW1QRzz86gO+3SlVA7ajGqL04VnfzOCd4VJX2sVzBQS0AdBXXM4/cBHnfhdIUmzqAVJaCLEUQ+OkqaNX1eiZ/RANUeStBMrixqtoOB61gVr38rlyuwUemtkGDOdC3KSAJ3XzW6qm8Xjyh7prgEHak45bm1fU/rhHHfQ8aZZW2Jqe/v82WXV4A6N9Dpj+L8T0J8HrJ/Lbh13g8rbW921KFJBSuzul8Bhi4ZeBQzRF8NrOu6aXEtLbX9Ey6DLus+3SWz5/N3J95Pe8EcKuq2lEehOuj6uBL47Oy3QaWFKkTFJN1JdH1/2xh/YBq06CpOSqaohzwAim4BDW3nqe5iI6MnXMQUcXO8lembkkJB73tb+nvOf4EbpPIlN006d8ZiSYsWnS6gH5oQ0Rl/i6H1eBQctH8E0rCaqBe063Zh7TlbOdutqk24XRt68gopsunJzKUIY+j5p8OcRFjRoGcv5tNxfENvaHb14cUIMeqmPFu2318INuzCXwcAAA=="
    },
    "Metadata": {
     "aws:cdk:path": "CdkStack/FrontendStack/CDKMetadata/Default"

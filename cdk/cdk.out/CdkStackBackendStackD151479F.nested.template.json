@@ -10,22 +10,7 @@
      "S3Key": "e4a4802e2757c0c52f059d01ba7e62fd1e0380346e0aed9e2869607d0a1f2a27.zip"
     },
     "Handler": "lambda_function.lambda_handler",
-    "Role": {
-     "Fn::Join": [
-      "",
-      [
-       "arn:",
-       {
-        "Ref": "AWS::Partition"
-       },
-       ":iam::",
-       {
-        "Ref": "AWS::AccountId"
-       },
-       ":role/retrieveCar-role-i2tj7iua"
-      ]
-     ]
-    },
+    "Role": "arn:aws:iam::536527325565:role/service-role/retrieveCar-role-i2tj7iua",
     "Runtime": "python3.13",
     "Timeout": 60
    },

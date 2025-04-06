@@ -27,7 +27,7 @@ export class BackendStack extends cdk.NestedStack {
       handler: 'lambda_function.lambda_handler',
       code: lambda.Code.fromAsset('../lambda'),
       timeout: cdk.Duration.seconds(60),
-      role: Role.fromRoleName(this, lambdaRoleId, lambdaRole),
+      role: Role.fromRoleArn(this, lambdaRoleId, lambdaRole),
     });
 
     const api = new apigateway.RestApi(this, 'cars-api', {

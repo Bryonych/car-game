@@ -25,7 +25,7 @@ export class FrontendStack extends cdk.NestedStack {
     // new cdk.CfnOutput(this, 'Site', {value: 'https://test.com'});
 
     const gameBucket = new s3.Bucket(this, 'GameBucket', {
-      bucketName: 'car-game',
+      bucketName: 'car-game-75',
       publicReadAccess: false,
       blockPublicAccess: s3.BlockPublicAccess.BLOCK_ALL,
       // Need to change for prod
@@ -45,14 +45,14 @@ export class FrontendStack extends cdk.NestedStack {
 
     const distribution = new cloudfront.Distribution(this, 'SiteDistribution', {
       // certificate: certificate, // uncomment when cert genenrated
-      defaultRootObject: "page.tsx",
+      defaultRootObject: "index.html",
       // domainNames: [// add domain name when created],
       minimumProtocolVersion: cloudfront.SecurityPolicyProtocol.TLS_V1_2_2021,
       errorResponses: [
         {
           httpStatus: 403,
-          responseHttpStatus: 403,
-          responsePagePath: './error.html',
+          // responseHttpStatus: 403,
+          // responsePagePath: './error.html',
           ttl: cdk.Duration.minutes(10),
         }
       ],
