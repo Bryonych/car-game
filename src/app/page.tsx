@@ -7,7 +7,6 @@ import { getTodaysCar, getRandomNumbers } from './data/getData.tsx';
 import { Card } from "./data/interfaces.tsx";
 import { FormControl, Autocomplete, TextField } from "@mui/material";
 import { Alert, Button } from '@mui/material';
-import Head from 'next/head';
 
 function Game(): ReactElement {
     const [todaysImage, setTodaysImage] = useState<string>();
