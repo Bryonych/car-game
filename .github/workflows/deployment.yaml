@@ -26,12 +26,16 @@ jobs:
   
   test:
 
+    runs-on: ubuntu-latest
+
     steps:
     - name: run tests
       run: npm run test
   
   deploy:
 
+    runs-on: ubuntu-latest
+    
     steps:
     - name: install aws CDK
       run: sudo npm i -g aws-cdk
