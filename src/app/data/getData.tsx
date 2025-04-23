@@ -4,7 +4,7 @@ export async function getTodaysCar(date: string) {
     if (date[0] === ',') formatDate = date.substring(0,11);
     else formatDate = date.substring(0,10);
     const api = process.env.API_URL;
-    console.log("API: " + api);
+    // console.log("API: " + api);
     const res = await fetch(api! + "?date=" + formatDate);
     const resJson = await res.json();
     const imgBlob = base64ToBlob(resJson.image);
