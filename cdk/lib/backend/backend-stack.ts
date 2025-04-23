@@ -2,6 +2,7 @@ import * as cdk from 'aws-cdk-lib';
 import { Construct } from 'constructs';
 import * as lambda from 'aws-cdk-lib/aws-lambda';
 import * as apigateway from 'aws-cdk-lib/aws-apigateway';
+import * as ssm from 'aws-cdk-lib/aws-ssm';
 import { Role } from 'aws-cdk-lib/aws-iam';
 import * as dotenv from "dotenv";
 import * as path from 'path';
@@ -39,6 +40,12 @@ export class BackendStack extends cdk.NestedStack {
 
     const carsResource = api.root.addResource('car');
     carsResource.addMethod('GET', new apigateway.LambdaIntegration(retrieveCarLambda));
+
+    // Write the API URL to Parameter Store
+    new ssm.StringParameter(this, 'ApiUrlParameter', {
+      parameterName: '/car-game/api-url',
+      stringValue: api.urlForPath('/car'), 
+    });
 
   }
 }
