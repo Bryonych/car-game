@@ -2,7 +2,8 @@ name: car game cdk deploy
 
 on:
   push:
-    branches: [ "main" ]
+    branches: 
+      - main
 
 jobs:
   build:
@@ -15,26 +16,35 @@ jobs:
         # See supported Node.js release schedule at https://nodejs.org/en/about/releases/
 
     steps:
-      -uses: actions/checkout@v4
+    - uses: actions/checkout@v4
       
-      -name: install web app dependencies
+    - name: install web app dependencies
       run: npm ci
 
-      -name: build web app
+    - name: build web app
       run: npm run build
+  
+  test:
 
-      -name: install aws CDK
+    steps:
+    - name: run tests
+      run: npm run test
+  
+  deploy:
+
+    steps:
+    - name: install aws CDK
       run: sudo npm i -g aws-cdk
 
-      -name: install deployment dependencies
+    - name: install deployment dependencies
       working-directory: ./cdk
       run: npm ci
 
-      -name: cdk synth
+    - name: cdk synth
       working-directory: ./cdk
       run: cdk synth
 
-      -name: cdk deploy
+    - name: cdk deploy
       working-directory: ./cdk
       env:
         AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
