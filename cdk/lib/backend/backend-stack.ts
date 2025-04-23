@@ -20,8 +20,8 @@ export class BackendStack extends cdk.NestedStack {
     const __dirname = path.dirname(__filename);
     dotenv.config({ path: path.resolve(__dirname, "../../.env") });
 
-    const lambdaRole = process.env.LAMBDA_ROLE || "";
-    const lambdaRoleId = process.env.LAMBDA_ROLE_ID || "";
+    const lambdaRole = ssm.StringParameter.valueForStringParameter(this, '/car-game/lambda-role');
+    const lambdaRoleId = ssm.StringParameter.valueForStringParameter(this, '/car-game/lambda-role-id');
     
     const retrieveCarLambda = new lambda.Function(this, 'retrieveCarLambda', {
       runtime: lambda.Runtime.PYTHON_3_13,
