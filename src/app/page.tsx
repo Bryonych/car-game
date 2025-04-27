@@ -5,9 +5,14 @@ import { motion } from "framer-motion";
 import { cn } from "../../lib/utils.ts";
 import { getTodaysCar, getRandomNumbers } from './data/getData.tsx';
 import { Card } from "./data/interfaces.tsx";
+import SelectedCard from "./components/SelectedCard.tsx";
 import { FormControl, Autocomplete, TextField } from "@mui/material";
 import { Alert, Button } from '@mui/material';
 
+/**
+ * Represents the single-page game.
+ * @returns The game object to display to the user.
+ */
 function Game(): ReactElement {
     const [todaysImage, setTodaysImage] = useState<string>();
     const [todaysCarInfo, setTodaysCarInfo] = useState<string[]>([]);
@@ -23,10 +28,18 @@ function Game(): ReactElement {
     const [canGuess, setCanGuess] = useState<boolean>(false);
     const [finished, setFinished] = useState<boolean>(false);
     
+    /**
+     * When a card is clicked by the user, sets the clicked card as the selected if no card
+     * is already selected. If a card was already selected, sets it to previously selected and 
+     * sets selected to null, increases the count of cards removed, then changes the canGuess flag, 
+     * so that the user can make a guess.
+     * @param card The card the user has clicked on.
+     */
     const handleClick = (card: Card | null) => {
         if (selected === null) {
           setSelected(card);
           setSelection("");
+          // Set correct flag to undefined, so user can make a guess after next click
           setCorrect(undefined);
         } else {
           setPreviouslySelected([...previouslySelected, selected]);
@@ -35,26 +48,39 @@ function Game(): ReactElement {
             setNumGuesses(numGuesses+1);
           }
           if (!correct || correct === undefined) {
+            // Set can guess flag to enable the drop down list
             setCanGuess(true);
           }
         }
     };
 
+    /**
+     * When the submit button is clicked, check if answer is correct and 
+     * update states accrodingly.
+     */
     const handleSubmit = () => {
-      console.log(answer + " " + selection);
+      // console.log(answer + " " + selection);
       if (answer !== "" && selection === answer) {
+        // If they got the right answer
         setCorrect(true);
         setFinished(true);
       } else {
+        // Wrong answer
         setCorrect(false);
         setSelection("");
       }
       if (numGuesses == 15 && !correct) {
+        // No more guesses available, so game is over
         setFinished(true);
       }
+      // Disable drop down until next card is removed
       setCanGuess(false);
     }
 
+    /**
+     * Creates a shareable object for sharing the results of the game.
+     * @param guessed   Boolean for whether they guessed correctly or not.
+     */
     const handleShare = (guessed: boolean) => {
       const text = guessed? "I guessed today's car after removing " + numGuesses + " blocks" :
               "I didn't guess today's car after removing 15 blocks";
@@ -62,56 +88,72 @@ function Game(): ReactElement {
       navigator.share({
         title: "Car Game Result",
         text: text,
-        url: "https://d1u0cr4tt1us5e.cloudfront.net/"
+        url: "https://d1u0cr4tt1us5e.cloudfront.net/" // need to update with domain once created
       }).catch((error) => console.log("Sharing failed", error));
       } else {
         alert("Sharing not supported on this browser");
       }
     }
 
+    /**
+     * Filters the dropdown list based on charcters entered by the user
+     * @param options     The cars in the car list
+     * @param inputValue  The text entered by the user    
+     * @returns 
+     */
     const filterOptions = (options: string[], { inputValue }: { inputValue: string }) => {
       return options
         .filter((option) => option.toLowerCase().includes(inputValue.toLowerCase()))
-        .slice(0, 50); // Limit results to 10
+        .slice(0, 500); // Limit results to 500
     };
 
+    // On load, get the date from the user's browser and retreive the image and car data for this date
+    // from the backend.
     useEffect(() => {
         if (todaysImage === undefined) {
             const todaysDate = new Date().toLocaleString("en-GB");
             // let todaysDate = "04/04/2025";
             getTodaysCar(todaysDate).then(res => {
-              setGuessOptions(res['carlist']);
-              setTodaysImage(res['image']);
-              const items: string[] = [];
-              for (const [key, value] of Object.entries(res['cardata'])) {
-                if (key !== "Year" && key !== "Model" && key !== "Make" && key !== "S3-Key" && key !== "Date") {
-                  items.push(key + " :" + value);
+              if (res !== undefined) {
+                setGuessOptions(res['carlist']);
+                setTodaysImage(res['image']);
+                const items: string[] = [];
+                for (const [key, value] of Object.entries(res['cardata'])) {
+                  if (key !== "Model" && key !== "Make" && key !== "S3-Key" && key !== "Date") {
+                    items.push(key + " :" + value);
+                  }
                 }
+                setTodaysCarInfo(items);
+                setAnswer((res['cardata']['S3-Key']).replaceAll('-', ' '));
               }
-              setTodaysCarInfo(items);
-              setAnswer((res['cardata']['S3-Key']).replaceAll('-', ' '));
             });
         }
     }, []);
 
+    // Creates the cards once todays car data has been retrieved.
     useEffect(() => {
         createCards();
     }, [todaysCarInfo]);
 
+    // Once car data is retrieved and cards are created, displays the game
     useEffect(() => {
         if (cards.length > 0 && todaysImage !== undefined) {
           setIsLoading(false);
         }
     }, [todaysImage, cards]);
 
+    /**
+     * Creates 15 cards to appear over the image and randomly adds clues to the content
+     * of 7 of them from the retrieved car data. 
+     */
     function createCards() {
       const createdCards = [];
       const colors = ["#D62246", "#8BA6A9", "#3A445D", "#E7BB41", "#DB995A", "#352208", "#B8D8D8", "#3772FF", "#0B6E4F", "#8491A3", "#F15152", "#470FF4", "#F7D488", "#92140C", "#2A1E5C"]
-      const randomCards = getRandomNumbers(14,6);
+      const randomCards = getRandomNumbers(14,7);
       let idx = 0;
       for (let i = 0; i < 15; i++ ) {
         let content: string = "";
-        if (randomCards.has(i) && idx < 6 && todaysCarInfo != undefined) {
+        if (randomCards.has(i) && idx < 7 && todaysCarInfo != undefined) {
           content = todaysCarInfo[idx];
           idx ++;
         }
@@ -130,7 +172,7 @@ function Game(): ReactElement {
     return isLoading ? <div><p>waiting</p></div>
     : (
       <div>
-        <p className="flex justify-center font-serif text-blue-800 mt-15 sm:mt-9">Remove a block to make a guess</p>
+        <p className="flex justify-center text-blue-800 mt-15 sm:mt-9">Remove a block to make a guess</p>
         <div className="relative w-[80vw] h-full sm:w-[60vw] mt-6 flex justify-center items-center mx-auto">
             <img className="absolute z-0 w-full max-h-full p-1 inset-0" src={todaysImage} />
             <div className="w-full h-full min-h-0 grid grid-cols-5 sm:grid-cols-3 relative">
@@ -180,7 +222,7 @@ function Game(): ReactElement {
           </div>
           <Button className="m-h-full self-stretch" variant="contained" disabled={selection===""} onClick={handleSubmit}>Submit</Button>
         </div>
-        <div className="flex justify-center font-serif text-blue-800"><p>Number of blocks removed: {numGuesses}</p></div>
+        <div className="flex justify-center text-blue-800"><p>Number of blocks removed: {numGuesses}</p></div>
           {correct==false && !finished? <Alert severity="error">Incorrect. Try again</Alert> :
             correct==false && finished? <div className="flex justify-center mt-5 sm:mt-1">
               <Alert severity="info">Hard luck. The correct answer was {answer}</Alert> 
@@ -191,45 +233,7 @@ function Game(): ReactElement {
               <Button variant="contained" onClick={() => handleShare(true)}>Share</Button>
               </div>: <></>}
       </div>
-    )
-}
-
-const SelectedCard = ({ selected }: { selected: Card | null }) => {
-    return (
-      <div className="bg-transparent h-full w-full flex flex-col justify-end rounded-lg shadow-2xl relative z-[60]">
-        <motion.div
-          initial={{
-            opacity: 0,
-          }}
-          animate={{
-            opacity: 0.6,
-          }}
-          className="absolute inset-0 h-full w-full bg-black opacity-60 z-10"
-        />
-        <motion.div
-          layoutId={`content-${selected?.id}`}
-          initial={{
-            opacity: 0,
-            y: 100,
-          }}
-          animate={{
-            opacity: 1,
-            y: 0,
-          }}
-          exit={{
-            opacity: 0,
-            z: 100,
-          }}
-          transition={{
-            duration: 0.3,
-            ease: "easeInOut",
-          }}
-          className="relative px-8 pb-4 z-[70] text-white"
-        >
-          {selected?.content}
-        </motion.div>
-      </div>
     );
-  };
+}
 
 export default Game
