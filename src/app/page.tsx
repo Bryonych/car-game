@@ -8,6 +8,7 @@ import { Card } from "./data/interfaces.tsx";
 import SelectedCard from "./components/SelectedCard.tsx";
 import { FormControl, Autocomplete, TextField } from "@mui/material";
 import { Alert, Button } from '@mui/material';
+import { localStateStore } from './data/handleLocalState.tsx';
 
 /**
  * Represents the single-page game.
@@ -15,9 +16,10 @@ import { Alert, Button } from '@mui/material';
  */
 function Game(): ReactElement {
     const [todaysImage, setTodaysImage] = useState<string>();
+    const [todaysDate, setTodaysDate] = useState<string>();
     const [todaysCarInfo, setTodaysCarInfo] = useState<string[]>([]);
     const [selected, setSelected] = useState<Card | null>(null);
-    const [previouslySelected, setPreviouslySelected] = useState<Card[]>([]);
+    const [previouslySelected, setPreviouslySelected] = useState<number[]>([]);
     const [cards, setCards] = useState<Card[]>([]);
     const [isLoading, setIsLoading] = useState<boolean>(true);
     const [selection, setSelection] = useState<string | null>("");
@@ -42,7 +44,7 @@ function Game(): ReactElement {
           // Set correct flag to undefined, so user can make a guess after next click
           setCorrect(undefined);
         } else {
-          setPreviouslySelected([...previouslySelected, selected]);
+          setPreviouslySelected([...previouslySelected, selected.id]);
           setSelected(null);
           if (!finished) {
             setNumGuesses(numGuesses+1);
@@ -75,6 +77,7 @@ function Game(): ReactElement {
       }
       // Disable drop down until next card is removed
       setCanGuess(false);
+      saveState();
     }
 
     /**
@@ -107,13 +110,15 @@ function Game(): ReactElement {
         .slice(0, 500); // Limit results to 500
     };
 
-    // On load, get the date from the user's browser and retreive the image and car data for this date
-    // from the backend.
+    // On load, either load the store state from their browser, or get the date from the user's 
+    // browser and retreive the image and car data for this date from the backend.
     useEffect(() => {
+        loadState();
         if (todaysImage === undefined) {
-            const todaysDate = new Date().toLocaleString("en-GB");
-            // let todaysDate = "04/04/2025";
-            getTodaysCar(todaysDate).then(res => {
+            const date = new Date().toLocaleString("en-GB")
+            setTodaysDate(date);
+            // setTodaysDate("04/04/2025");
+            getTodaysCar(date).then(res => {
               if (res !== undefined) {
                 setGuessOptions(res['carlist']);
                 setTodaysImage(res['image']);
@@ -169,7 +174,37 @@ function Game(): ReactElement {
       setCards(createdCards);
     }
 
-    return isLoading ? <div><p>waiting</p></div>
+    /**
+     * Retrieves the state from local storage and, if it matches todays date, loads
+     * the state variables, otherwise deletes it.
+     */
+    function loadState() {
+      const stored = localStateStore.getItem();
+      const date = (new Date().toLocaleString("en-GB")).substring(0,10);
+      if (stored === null) return;
+      const storedObj = JSON.parse(stored);
+      if ((storedObj['todaysDate']).substring(0,10) === date) {
+        setPreviouslySelected(storedObj['previouslySelected']);
+        setNumGuesses(storedObj['previouslySelected'].length);
+        setFinished(storedObj['finished']);
+      } else {
+        localStateStore.removeItem();
+      }
+    }
+
+    /**
+     * Creates and stores the state of the game in local storage
+     */
+    function saveState() {
+      const state = {
+        previouslySelected: previouslySelected,
+        finished: finished,
+        todaysDate: todaysDate
+      }
+      localStateStore.setItem(JSON.stringify(state));
+    }
+
+    return isLoading ? <div><p>Loading...</p></div>
     : (
       <div>
         <p className="flex justify-center text-blue-800 mt-15 sm:mt-9">Remove a block to make a guess</p>
@@ -186,7 +221,7 @@ function Game(): ReactElement {
                         "relative overflow-hidden h-[8vh] sm:h-[11vh]",
                         selected?.id === card.id
                             ? "rounded-lg cursor-pointer absolute inset-0 h-1/2 md:w-1/2 m-auto z-50 flex justify-center items-center flex-wrap flex-col"
-                            : previouslySelected.includes(card)
+                            : previouslySelected.includes(card.id)
                             ? "-z-40 bg-white"
                             : "bg-white "
                         )}
