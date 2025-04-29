@@ -20,7 +20,7 @@ describe('Render UI Tests', () => {
     beforeAll(() => {
         jest.spyOn(getData, 'getTodaysCar').mockResolvedValue(mockCarData);
         const localStorageMock = (function () {
-            let store: any = {};
+            const store: { [key: string]: string; } = {};
             return {
                 getItem: jest.fn((key) => store[key] || null),
                 setItem: jest.fn((key, value) => {
