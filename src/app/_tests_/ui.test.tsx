@@ -3,6 +3,7 @@ import { render, screen, act, fireEvent } from '@testing-library/react';
 import App from '../page';
 import userEvent from "@testing-library/user-event";
 import * as getData from '../data/getData';
+import { localStateStore } from '../data/handleLocalState';
 
 const mockCarData = {
     "image": Buffer.from("123456789", 'binary').toString('base64'),
@@ -18,6 +19,22 @@ const mockCarData = {
 describe('Render UI Tests', () => {
     beforeAll(() => {
         jest.spyOn(getData, 'getTodaysCar').mockResolvedValue(mockCarData);
+        const localStorageMock = (function () {
+            let store: any = {};
+            return {
+                getItem: jest.fn((key) => store[key] || null),
+                setItem: jest.fn((key, value) => {
+                    store[key] = value.toString();
+                }),
+                removeItem: jest.fn((key) => {
+                    delete store[key];
+                }),
+            };
+        })();
+    
+        Object.defineProperty(window, 'localStorage', {
+            value: localStorageMock,
+        });
     });
     test('check text is displayed', async () => {
         await act(async () => {
@@ -70,6 +87,20 @@ describe('Render UI Tests', () => {
         // Check Button is now enabled
         expect(button).toHaveProperty('disabled', false);
     });
+
+    it("should store item in local storage and then retrieve it", () => {
+        localStateStore.setItem('test value');
+        expect(window.localStorage.setItem).toHaveBeenCalledWith('car-game', 'test value');
+        const result = localStateStore.getItem();
+        expect(result).toBe('test value');
+    });
+
+    it("should delete the item from local storage and then not be there to retrieve", () => {
+        localStateStore.removeItem();
+        expect(window.localStorage.removeItem).toHaveBeenCalledWith('car-game');
+        const result = localStateStore.getItem();
+        expect(result).toBe(null);
+    })
 });
 
 
