@@ -3,7 +3,7 @@
  * @param date  The current date from the user's browser
  * @returns     An oject containing the image URL, the list of cars and the car data.
  */
-export async function getTodaysCar(date: string) {
+export async function getTodaysCar(date: string)  {
     let formatDate;
     if (date[0] === ',') formatDate = date.substring(0,11);
     else formatDate = date.substring(0,10);

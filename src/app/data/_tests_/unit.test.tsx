@@ -24,7 +24,7 @@ describe('Get data tests', () => {
         } as unknown as Response);
 
         const result = await getTodaysCar(date);
-        expect(result).not.toBeUndefined;
+        expect(result).not.toBeUndefined();
         expect(result!["carlist"][0]).toEqual("carone");
         expect(result!["cardata"]).toEqual(mockData["cardata"]);
         expect(result!["image"]).toContain("blob");

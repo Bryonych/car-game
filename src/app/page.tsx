@@ -188,7 +188,7 @@ function Game(): ReactElement {
       const date = (new Date().toLocaleString("en-GB")).substring(0,10);
       if (stored === null) return;
       const storedObj = JSON.parse(stored);
-      if ((storedObj['todaysDate']).substring(0,10) === date) {
+      if (storedObj['todaysDate'] && (storedObj['todaysDate']).substring(0,10) === date) {
         setPreviouslySelected(storedObj['previouslySelected']);
         setNumGuesses(storedObj['previouslySelected'].length);
         setFinished(storedObj['finished']);

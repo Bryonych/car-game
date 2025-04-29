@@ -5,11 +5,12 @@ import { http } from "msw";
 describe("Get data integration test", () => {
     beforeAll(() => {
         process.env.API_URL = "https://api.test.com/car";
-    })
+    });
+
     it("should return data from the API", async () => {
         server.listen();
         const result = await getTodaysCar("19/03/2025");
-        expect(result).not.toBeUndefined;
+        expect(result).not.toBeUndefined();
         expect(result!["image"]).toContain("blob");
         // Check it has sorted them
         expect(result!["carlist"][0]).toEqual("carone");
@@ -24,7 +25,7 @@ describe("Get data integration test", () => {
             })
         );
         const result = await getTodaysCar("29/04/2025");
-        expect(result).toBeUndefined;
+        expect(result).toBeUndefined();
         server.close();
     })
 });
