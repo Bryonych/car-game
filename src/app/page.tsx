@@ -38,11 +38,12 @@ function Game(): ReactElement {
      * @param card The card the user has clicked on.
      */
     const handleClick = (card: Card | null) => {
+        console.log(correct + " " + finished);
         if (selected === null) {
           setSelected(card);
           setSelection("");
           // Set correct flag to undefined, so user can make a guess after next click
-          setCorrect(undefined);
+          if (!correct) setCorrect(undefined);
         } else {
           setPreviouslySelected([...previouslySelected, selected.id]);
           setSelected(null);
@@ -77,7 +78,6 @@ function Game(): ReactElement {
       }
       // Disable drop down until next card is removed
       setCanGuess(false);
-      saveState();
     }
 
     /**
@@ -142,10 +142,15 @@ function Game(): ReactElement {
 
     // Once car data is retrieved and cards are created, displays the game
     useEffect(() => {
-        if (cards.length > 0 && todaysImage !== undefined) {
-          setIsLoading(false);
-        }
+      if (cards.length > 0 && todaysImage !== undefined) {
+        setIsLoading(false);
+      }
     }, [todaysImage, cards]);
+
+    // Saves the state after a guess is made or the game is finished
+    useEffect(() => {
+      saveState();
+    }, [correct, finished]);
 
     /**
      * Creates 15 cards to appear over the image and randomly adds clues to the content
@@ -187,6 +192,7 @@ function Game(): ReactElement {
         setPreviouslySelected(storedObj['previouslySelected']);
         setNumGuesses(storedObj['previouslySelected'].length);
         setFinished(storedObj['finished']);
+        setCorrect(storedObj['correct']);
       } else {
         localStateStore.removeItem();
       }
@@ -199,6 +205,7 @@ function Game(): ReactElement {
       const state = {
         previouslySelected: previouslySelected,
         finished: finished,
+        correct: correct,
         todaysDate: todaysDate
       }
       localStateStore.setItem(JSON.stringify(state));
@@ -258,12 +265,14 @@ function Game(): ReactElement {
           <Button className="m-h-full self-stretch" variant="contained" disabled={selection===""} onClick={handleSubmit}>Submit</Button>
         </div>
         <div className="flex justify-center text-blue-800"><p>Number of blocks removed: {numGuesses}</p></div>
-          {correct==false && !finished? <Alert severity="error">Incorrect. Try again</Alert> :
+          {correct==false && !finished? <div className="flex justify-center mt-5 sm:mt-1">
+            <Alert severity="error">Incorrect. Try again</Alert> 
+            </div>:
             correct==false && finished? <div className="flex justify-center mt-5 sm:mt-1">
-              <Alert severity="info">Hard luck. The correct answer was {answer}</Alert> 
+              <Alert severity="info">Hard luck. The correct answer is {answer}. Try again tomorrow</Alert> 
               <Button variant="contained" onClick={() => handleShare(false)}>Share</Button>
               </div>: 
-            finished? <div className="flex justify-center mt-5 sm:mt-1">
+            correct && finished? <div className="flex justify-center mt-5 sm:mt-1">
               <Alert severity="success">Correct! You guessed {answer} correctly after removing {numGuesses} blocks</Alert> 
               <Button variant="contained" onClick={() => handleShare(true)}>Share</Button>
               </div>: <></>}
