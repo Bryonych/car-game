@@ -6,7 +6,7 @@ import { cn } from "../../lib/utils.ts";
 import { getTodaysCar, getRandomNumbers } from './data/getData.tsx';
 import { Tile, TileColors } from "./data/interfaces.tsx";
 import SelectedTile from "./components/SelectedTile.tsx";
-import { FormControl, Autocomplete, TextField, Container, Grid2, Chip, Box } from "@mui/material";
+import { FormControl, Autocomplete, TextField, Container, Grid2, Chip, Box, Avatar } from "@mui/material";
 import Image from 'next/image';
 import { Alert, Button } from '@mui/material';
 import { localStateStore } from './data/handleLocalState.tsx';
@@ -214,7 +214,12 @@ function Game(): ReactElement {
     return isLoading ? <div><p>Loading...</p></div>
     : (
       <Container>
-        <p className="flex justify-center text-blue-800 mt-15 sm:mt-9">Remove a tile to make a guess</p>
+        <p className="flex justify-center text-blue-800 mt-15 mb-7 sm:mt-9 sm:mb-4">Remove a tile to make a guess</p>
+        <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }} >
+          <Chip
+            label={<Box>Tiles removed: {numGuesses}</Box>} 
+            color="primary"/>
+        </Box>
         <div className="relative w-[80vw] h-full sm:w-[60vw] mt-6 flex justify-center items-center mx-auto">
             <Image className="absolute z-0 w-full max-h-full p-1 inset-0" src={todaysImage!} alt="Image" width={500} height={300} />
             <Grid2 className="w-full h-full min-h-0 grid grid-cols-5 sm:grid-cols-3 relative">
@@ -264,10 +269,6 @@ function Game(): ReactElement {
           </div>
           <Button className="m-h-full self-stretch" variant="contained" color="primary" disabled={selection===""} onClick={handleSubmit}>Submit</Button>
         </div>
-          <Chip 
-            sx={{ display: 'flex',alignItems: 'center', justifySelf: 'center' }} 
-            label={<Box>Tiles removed: {numGuesses}</Box>} 
-            color="primary"/>
           {correct==false && !finished? <div className="flex justify-center mt-5 sm:mt-1">
             <Alert severity="error">Incorrect. Try again</Alert> 
             </div>:
