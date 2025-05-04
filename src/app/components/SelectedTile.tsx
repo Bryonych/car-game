@@ -1,5 +1,5 @@
 import { motion } from "framer-motion";
-import { Card } from "../data/interfaces.tsx";
+import { Tile } from "../data/interfaces.tsx";
 
 /**
  * Handles the animation of the card selected by the user.
@@ -8,7 +8,7 @@ import { Card } from "../data/interfaces.tsx";
  * @returns The selected card is expanded, brought forward and has the hidden text displayed.
  * @author Bryony Church
  */
-const SelectedCard = ({ selected }: { selected: Card | null }) => {
+const SelectedTile = ({ selected }: { selected: Tile | null }) => {
     return (
       <div className="bg-transparent h-full w-full flex flex-col justify-end rounded-lg shadow-2xl relative z-[60]">
         <motion.div
@@ -46,4 +46,4 @@ const SelectedCard = ({ selected }: { selected: Card | null }) => {
     );
   };
 
-  export default SelectedCard
+  export default SelectedTile
