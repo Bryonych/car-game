@@ -6,7 +6,7 @@ import * as getData from '../data/getData';
 import { localStateStore } from '../data/handleLocalState';
 
 const mockCarData = {
-    "image": Buffer.from("123456789", 'binary').toString('base64'),
+    "image": "https://testimage.jpg",
     "carlist": ["cartwo", "carone"],
     "cardata": {
         "Make": "test make",
@@ -40,9 +40,9 @@ describe('Render UI Tests', () => {
         await act(async () => {
             render(<App />);
         });
-        const upperText = screen.getByText("Remove a block to make a guess");
+        const upperText = screen.getByText("Remove a tile to make a guess");
         expect(upperText).toBeDefined();
-        const lowerText = screen.getByText("Number of blocks removed: 0");
+        const lowerText = screen.getByText("Tiles removed: 0");
         expect(lowerText).toBeDefined();
     });
     test('check image loads', async () => {
@@ -51,7 +51,7 @@ describe('Render UI Tests', () => {
         });
         if (typeof window !== "undefined") {
             const image = document.querySelector("img") as HTMLImageElement;
-            expect(image.src).toContain(mockCarData['image']);
+            expect(image.src).toContain("testimage");
         }
     });
     test('check button and drop down load and are disabled', async () => {
@@ -63,24 +63,24 @@ describe('Render UI Tests', () => {
         expect(button).toHaveProperty('disabled', true);
         expect(dropDown).toHaveProperty('disabled', true);
     });
-    test('check that blocks are rendered', async () => {
+    test('check that tiless are rendered', async () => {
         await act(async () => {
             render(<App />);
         });
-        const blocks = screen.getAllByTitle("block");
-        expect(blocks).toHaveLength(15);
+        const tiles = screen.getAllByTitle("tile");
+        expect(tiles).toHaveLength(15);
     });
-    test('check that dropdown and button are enabled after two block clicks', async () => {
+    test('check that dropdown and button are enabled after two tile clicks', async () => {
         await act(async () => {
             render(<App />);
         });
-        const blocks = screen.getAllByTitle("block");
+        const tiles = screen.getAllByTitle("tile");
         const button = screen.getByText("Submit");
         const dropDown = screen.getByRole("combobox");
-        fireEvent.click(blocks[7]);
+        fireEvent.click(tiles[7]);
         expect(button).toHaveProperty('disabled', true);
         expect(dropDown).toHaveProperty('disabled', true);
-        fireEvent.click(blocks[7]);
+        fireEvent.click(tiles[7]);
         expect(dropDown).toHaveProperty('disabled', false);
         await userEvent.type(dropDown, "cartwo");
         await userEvent.click(screen.getByText("cartwo"));

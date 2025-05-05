@@ -40,7 +40,6 @@ function Game(): ReactElement {
      * @param tile The tile the user has clicked on.
      */
     const handleClick = (tile: Tile | null) => {
-        console.log(correct + " " + finished);
         if (selected === null) {
           setSelected(tile);
           setSelection("");
@@ -87,8 +86,8 @@ function Game(): ReactElement {
      * @param guessed   Boolean for whether they guessed correctly or not.
      */
     const handleShare = (guessed: boolean) => {
-      const text = guessed? "I guessed today's car after removing " + numGuesses + " blocks" :
-              "I didn't guess today's car after removing 15 blocks";
+      const text = guessed? "I guessed today's car after removing " + numGuesses + " tiles" :
+              "I didn't guess today's car after removing 15 tiles";
       if (navigator.share) {
       navigator.share({
         title: "Car Game Result",
