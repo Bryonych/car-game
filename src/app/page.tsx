@@ -6,7 +6,7 @@ import { cn } from "../../lib/utils.ts";
 import { getTodaysCar, getRandomNumbers } from './data/getData.tsx';
 import { Tile, TileColors, Accreditation } from "./data/interfaces.tsx";
 import SelectedTile from "./components/SelectedTile.tsx";
-import { FormControl, Autocomplete, TextField, Container, Grid2, Chip, Box, Avatar } from "@mui/material";
+import { FormControl, Autocomplete, TextField, Container, Grid2, Chip, Box } from "@mui/material";
 import Image from 'next/image';
 import { Alert, Button } from '@mui/material';
 import { localStateStore } from './data/handleLocalState.tsx';
