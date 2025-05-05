@@ -8,6 +8,13 @@ export interface Tile {
     color: string,
   }
 
+export interface Accreditation {
+  Link: string,
+  ImageName: string,
+  ImageLicence: string,
+  LicenceName: string,
+}
+
 export interface CarData {
     image: string,
     carlist: [],

@@ -4,7 +4,7 @@ import React, { ReactElement, useEffect, useState } from 'react';
 import { motion } from "framer-motion";
 import { cn } from "../../lib/utils.ts";
 import { getTodaysCar, getRandomNumbers } from './data/getData.tsx';
-import { Tile, TileColors } from "./data/interfaces.tsx";
+import { Tile, TileColors, Accreditation } from "./data/interfaces.tsx";
 import SelectedTile from "./components/SelectedTile.tsx";
 import { FormControl, Autocomplete, TextField, Container, Grid2, Chip, Box, Avatar } from "@mui/material";
 import Image from 'next/image';
@@ -30,6 +30,7 @@ function Game(): ReactElement {
     const [correct, setCorrect] = useState<boolean | undefined>(undefined);
     const [canGuess, setCanGuess] = useState<boolean>(false);
     const [finished, setFinished] = useState<boolean>(false);
+    const [accreditation, setAccreditaion] = useState<Accreditation>();
     
     /**
      * When a tile is clicked by the user, sets the clicked tile as the selected if no tile
@@ -123,9 +124,12 @@ function Game(): ReactElement {
               if (res !== undefined) {
                 setGuessOptions(res['carlist']);
                 setTodaysImage(res['image']);
+                if ("Image-Credit" in res['cardata']) {
+                  setAccreditaion(res['cardata']['Image-Credit']);
+                }
                 const items: string[] = [];
                 for (const [key, value] of Object.entries(res['cardata'])) {
-                  if (key !== "Model" && key !== "Make" && key !== "S3-Key" && key !== "Date") {
+                  if (key !== "Model" && key !== "Make" && key !== "S3-Key" && key !== "Date" && key !== "Image-Credit") {
                     items.push(key + " :" + value);
                   }
                 }
@@ -254,6 +258,11 @@ function Game(): ReactElement {
                 />
             </Grid2>
         </div>
+        {accreditation?
+        <div className="flex justify-end mx-auto w-[80vw] sm:w-[60vw] text-xs text-blue-700">
+          <a href={accreditation.Link}>{accreditation.ImageName}</a>, &nbsp;
+          <a href={accreditation.ImageLicence}>{accreditation.LicenceName}</a>
+        </div> : <></> }
         <div className="flex justify-center items-center mx-auto m-5 sm:w-[70vw]">
           <div className="w-full max-w-md">
             <FormControl fullWidth>
