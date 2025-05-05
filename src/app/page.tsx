@@ -4,9 +4,10 @@ import React, { ReactElement, useEffect, useState } from 'react';
 import { motion } from "framer-motion";
 import { cn } from "../../lib/utils.ts";
 import { getTodaysCar, getRandomNumbers } from './data/getData.tsx';
-import { Card } from "./data/interfaces.tsx";
-import SelectedCard from "./components/SelectedCard.tsx";
-import { FormControl, Autocomplete, TextField } from "@mui/material";
+import { Tile, TileColors, Accreditation } from "./data/interfaces.tsx";
+import SelectedTile from "./components/SelectedTile.tsx";
+import { FormControl, Autocomplete, TextField, Container, Grid2, Chip, Box, Avatar } from "@mui/material";
+import Image from 'next/image';
 import { Alert, Button } from '@mui/material';
 import { localStateStore } from './data/handleLocalState.tsx';
 
@@ -18,9 +19,9 @@ function Game(): ReactElement {
     const [todaysImage, setTodaysImage] = useState<string>();
     const [todaysDate, setTodaysDate] = useState<string>();
     const [todaysCarInfo, setTodaysCarInfo] = useState<string[]>([]);
-    const [selected, setSelected] = useState<Card | null>(null);
+    const [selected, setSelected] = useState<Tile | null>(null);
     const [previouslySelected, setPreviouslySelected] = useState<number[]>([]);
-    const [cards, setCards] = useState<Card[]>([]);
+    const [tiles, setTiles] = useState<Tile[]>([]);
     const [isLoading, setIsLoading] = useState<boolean>(true);
     const [selection, setSelection] = useState<string | null>("");
     const [guessOptions, setGuessOptions] = useState<string[]>([]);
@@ -29,18 +30,19 @@ function Game(): ReactElement {
     const [correct, setCorrect] = useState<boolean | undefined>(undefined);
     const [canGuess, setCanGuess] = useState<boolean>(false);
     const [finished, setFinished] = useState<boolean>(false);
+    const [accreditation, setAccreditaion] = useState<Accreditation>();
     
     /**
-     * When a card is clicked by the user, sets the clicked card as the selected if no card
-     * is already selected. If a card was already selected, sets it to previously selected and 
-     * sets selected to null, increases the count of cards removed, then changes the canGuess flag, 
+     * When a tile is clicked by the user, sets the clicked tile as the selected if no tile
+     * is already selected. If a tile was already selected, sets it to previously selected and 
+     * sets selected to null, increases the count of tile removed, then changes the canGuess flag, 
      * so that the user can make a guess.
-     * @param card The card the user has clicked on.
+     * @param tile The tile the user has clicked on.
      */
-    const handleClick = (card: Card | null) => {
+    const handleClick = (tile: Tile | null) => {
         console.log(correct + " " + finished);
         if (selected === null) {
-          setSelected(card);
+          setSelected(tile);
           setSelection("");
           // Set correct flag to undefined, so user can make a guess after next click
           if (!correct) setCorrect(undefined);
@@ -76,7 +78,7 @@ function Game(): ReactElement {
         // No more guesses available, so game is over
         setFinished(true);
       }
-      // Disable drop down until next card is removed
+      // Disable drop down until next tile is removed
       setCanGuess(false);
     }
 
@@ -122,9 +124,12 @@ function Game(): ReactElement {
               if (res !== undefined) {
                 setGuessOptions(res['carlist']);
                 setTodaysImage(res['image']);
+                if ("Image-Credit" in res['cardata']) {
+                  setAccreditaion(res['cardata']['Image-Credit']);
+                }
                 const items: string[] = [];
                 for (const [key, value] of Object.entries(res['cardata'])) {
-                  if (key !== "Model" && key !== "Make" && key !== "S3-Key" && key !== "Date") {
+                  if (key !== "Model" && key !== "Make" && key !== "S3-Key" && key !== "Date" && key !== "Image-Credit") {
                     items.push(key + " :" + value);
                   }
                 }
@@ -135,17 +140,17 @@ function Game(): ReactElement {
         }
     }, []);
 
-    // Creates the cards once todays car data has been retrieved.
+    // Creates the tiles once todays car data has been retrieved.
     useEffect(() => {
-        createCards();
+        createTiles();
     }, [todaysCarInfo]);
 
-    // Once car data is retrieved and cards are created, displays the game
+    // Once car data is retrieved and tiles are created, displays the game
     useEffect(() => {
-      if (cards.length > 0 && todaysImage !== undefined) {
+      if (tiles.length > 0 && todaysImage !== undefined) {
         setIsLoading(false);
       }
-    }, [todaysImage, cards]);
+    }, [todaysImage, tiles]);
 
     // Saves the state after a guess is made or the game is finished
     useEffect(() => {
@@ -156,27 +161,26 @@ function Game(): ReactElement {
      * Creates 15 cards to appear over the image and randomly adds clues to the content
      * of 7 of them from the retrieved car data. 
      */
-    function createCards() {
-      const createdCards = [];
-      const colors = ["#D62246", "#8BA6A9", "#3A445D", "#E7BB41", "#DB995A", "#352208", "#B8D8D8", "#3772FF", "#0B6E4F", "#8491A3", "#F15152", "#470FF4", "#F7D488", "#92140C", "#2A1E5C"]
-      const randomCards = getRandomNumbers(14,7);
+    function createTiles() {
+      const createdTiles = [];
+      const randomTiles = getRandomNumbers(14,7);
       let idx = 0;
       for (let i = 0; i < 15; i++ ) {
         let content: string = "";
-        if (randomCards.has(i) && idx < 7 && todaysCarInfo != undefined) {
+        if (randomTiles.has(i) && idx < 7 && todaysCarInfo != undefined) {
           content = todaysCarInfo[idx];
           idx ++;
         }
-        const c: Card = {
-          "id":createdCards.length,
+        const c: Tile = {
+          "id":createdTiles.length,
           "content": content,
           "className": "",
           "thumbnail": "",
-          "color": colors[createdCards.length]
+          "color": TileColors[createdTiles.length]
         }
-        createdCards.push(c);
+        createdTiles.push(c);
       }
-      setCards(createdCards);
+      setTiles(createdTiles);
     }
 
     /**
@@ -213,31 +217,36 @@ function Game(): ReactElement {
 
     return isLoading ? <div><p>Loading...</p></div>
     : (
-      <div>
-        <p className="flex justify-center text-blue-800 mt-15 sm:mt-9">Remove a block to make a guess</p>
+      <Container>
+        <p className="flex justify-center text-blue-800 mt-15 mb-7 sm:mt-9 sm:mb-4">Remove a tile to make a guess</p>
+        <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }} >
+          <Chip
+            label={<Box>Tiles removed: {numGuesses}</Box>} 
+            color="primary"/>
+        </Box>
         <div className="relative w-[80vw] h-full sm:w-[60vw] mt-6 flex justify-center items-center mx-auto">
-            <img className="absolute z-0 w-full max-h-full p-1 inset-0" src={todaysImage} />
-            <div className="w-full h-full min-h-0 grid grid-cols-5 sm:grid-cols-3 relative">
-                {cards.map((card, i) => (
-                    <div key={i} className={cn(card.className, "")}>
+            <Image className="absolute z-0 w-full max-h-full p-1 inset-0" src={todaysImage!} alt="Image" width={500} height={300} />
+            <Grid2 className="w-full h-full min-h-0 grid grid-cols-5 sm:grid-cols-3 relative">
+                {tiles.map((tile, i) => (
+                  <div key={i} className={cn(tile.className, "")}>
                     <motion.div
-                        onClick={() => handleClick(card)}
-                        title="block"
+                        onClick={() => handleClick(tile)}
+                        title="tile"
                         className={cn(
-                        card.className,
+                        tile.className,
                         "relative overflow-hidden h-[8vh] sm:h-[11vh]",
-                        selected?.id === card.id
+                        selected?.id === tile.id
                             ? "rounded-lg cursor-pointer absolute inset-0 h-1/2 md:w-1/2 m-auto z-50 flex justify-center items-center flex-wrap flex-col"
-                            : previouslySelected.includes(card.id)
+                            : previouslySelected.includes(tile.id)
                             ? "-z-40 bg-white"
                             : "bg-white "
                         )}
-                        layoutId={`card-${card.id}`}
-                        style={{ background:card.color}}
+                        layoutId={`card-${tile.id}`}
+                        style={{ background:tile.color}}
                     >
-                        {selected?.id === card.id && <SelectedCard selected={selected} />}
+                        {selected?.id === tile.id && <SelectedTile selected={selected} />}
                     </motion.div>
-            </div>
+                  </div>
                 ))}
                  <motion.div
                     onClick={() => handleClick(null)}
@@ -247,8 +256,13 @@ function Game(): ReactElement {
                     )}
                     animate={{ opacity: selected?.id ? 0.3 : 0 }}
                 />
-            </div>
+            </Grid2>
         </div>
+        {accreditation?
+        <div className="flex justify-end mx-auto w-[80vw] sm:w-[60vw] text-xs text-blue-700">
+          <a href={accreditation.Link}>{accreditation.ImageName}</a>, &nbsp;
+          <a href={accreditation.ImageLicence}>{accreditation.LicenceName}</a>
+        </div> : <></> }
         <div className="flex justify-center items-center mx-auto m-5 sm:w-[70vw]">
           <div className="w-full max-w-md">
             <FormControl fullWidth>
@@ -262,21 +276,20 @@ function Game(): ReactElement {
               </Autocomplete>
             </FormControl>
           </div>
-          <Button className="m-h-full self-stretch" variant="contained" disabled={selection===""} onClick={handleSubmit}>Submit</Button>
+          <Button className="m-h-full self-stretch" variant="contained" color="primary" disabled={selection===""} onClick={handleSubmit}>Submit</Button>
         </div>
-        <div className="flex justify-center text-blue-800"><p>Number of blocks removed: {numGuesses}</p></div>
           {correct==false && !finished? <div className="flex justify-center mt-5 sm:mt-1">
             <Alert severity="error">Incorrect. Try again</Alert> 
             </div>:
             correct==false && finished? <div className="flex justify-center mt-5 sm:mt-1">
               <Alert severity="info">Hard luck. The correct answer is {answer}. Try again tomorrow</Alert> 
-              <Button variant="contained" onClick={() => handleShare(false)}>Share</Button>
+              <Button variant="contained" color="primary" onClick={() => handleShare(false)}>Share</Button>
               </div>: 
             correct && finished? <div className="flex justify-center mt-5 sm:mt-1">
-              <Alert severity="success">Correct! You guessed {answer} correctly after removing {numGuesses} blocks</Alert> 
-              <Button variant="contained" onClick={() => handleShare(true)}>Share</Button>
+              <Alert severity="success">Correct! You guessed {answer} correctly after removing {numGuesses} tiles</Alert> 
+              <Button variant="contained" color="primary" onClick={() => handleShare(true)}>Share</Button>
               </div>: <></>}
-      </div>
+      </Container>
     );
 }
 
