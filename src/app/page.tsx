@@ -118,7 +118,7 @@ function Game(): ReactElement {
         if (todaysImage === undefined) {
             const date = new Date().toLocaleString("en-GB")
             setTodaysDate(date);
-            // setTodaysDate("04/04/2025");
+            // setTodaysDate("17/05/2025");
             getTodaysCar(date).then(res => {
               if (res !== undefined) {
                 setGuessOptions(res['carlist']);
@@ -260,7 +260,8 @@ function Game(): ReactElement {
         {accreditation?
         <div className="flex justify-end mx-auto w-[80vw] sm:w-[60vw] text-xs text-blue-700">
           <a href={accreditation.Link}>{accreditation.ImageName}</a>, &nbsp;
-          <a href={accreditation.ImageLicence}>{accreditation.LicenceName}</a>
+          {accreditation.ImageLicence? <a href={accreditation.ImageLicence}>{accreditation.LicenceName}</a> :
+          <p>{accreditation.LicenceName}</p> }
         </div> : <></> }
         <div className="flex justify-center items-center mx-auto m-5 sm:w-[70vw]">
           <div className="w-full max-w-md">

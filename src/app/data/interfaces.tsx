@@ -11,7 +11,7 @@ export interface Tile {
 export interface Accreditation {
   Link: string,
   ImageName: string,
-  ImageLicence: string,
+  ImageLicence?: string,
   LicenceName: string,
 }
 
