@@ -118,7 +118,8 @@ function Game(): ReactElement {
         if (todaysImage === undefined) {
             const date = new Date().toLocaleString("en-GB")
             setTodaysDate(date);
-            // setTodaysDate("04/04/2025");
+            // const date = "18/05/2025";
+            // setTodaysDate("18/05/2025");
             getTodaysCar(date).then(res => {
               if (res !== undefined) {
                 setGuessOptions(res['carlist']);
@@ -223,7 +224,7 @@ function Game(): ReactElement {
             label={<Box>Tiles removed: {numGuesses}</Box>} 
             color="primary"/>
         </Box>
-        <div className="relative w-[80vw] h-full sm:w-[60vw] mt-6 flex justify-center items-center mx-auto">
+        <div className="relative w-[80vw] h-full sm:w-[50vw] mt-6 flex justify-center items-center mx-auto">
             <Image className="absolute z-0 w-full max-h-full p-1 inset-0" src={todaysImage!} alt="Image" width={500} height={300} />
             <Grid2 className="w-full h-full min-h-0 grid grid-cols-5 sm:grid-cols-3 relative">
                 {tiles.map((tile, i) => (
@@ -258,9 +259,10 @@ function Game(): ReactElement {
             </Grid2>
         </div>
         {accreditation?
-        <div className="flex justify-end mx-auto w-[80vw] sm:w-[60vw] text-xs text-blue-700">
+        <div className="flex justify-end mx-auto w-[80vw] sm:w-[50vw] text-xs text-blue-700">
           <a href={accreditation.Link}>{accreditation.ImageName}</a>, &nbsp;
-          <a href={accreditation.ImageLicence}>{accreditation.LicenceName}</a>
+          {accreditation.ImageLicence? <a href={accreditation.ImageLicence}>{accreditation.LicenceName}</a> :
+          <p>{accreditation.LicenceName}</p> }
         </div> : <></> }
         <div className="flex justify-center items-center mx-auto m-5 sm:w-[70vw]">
           <div className="w-full max-w-md">
