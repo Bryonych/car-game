@@ -130,7 +130,7 @@ function Game(): ReactElement {
                 const items: string[] = [];
                 for (const [key, value] of Object.entries(res['cardata'])) {
                   if (key !== "Model" && key !== "Make" && key !== "S3-Key" && key !== "Date" && key !== "Image-Credit") {
-                    items.push(key + " :" + value);
+                    items.push(key.replace(/-/g, " ") + ": " + value);
                   }
                 }
                 setTodaysCarInfo(items);
@@ -258,7 +258,7 @@ function Game(): ReactElement {
                 />
             </Grid2>
         </div>
-        {accreditation?
+        {accreditation && (numGuesses > 10 || finished)?
         <div className="flex justify-end mx-auto w-[80vw] sm:w-[50vw] text-xs text-blue-700">
           <a href={accreditation.Link}>{accreditation.ImageName}</a>, &nbsp;
           {accreditation.ImageLicence? <a href={accreditation.ImageLicence}>{accreditation.LicenceName}</a> :
