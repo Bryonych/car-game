@@ -258,7 +258,7 @@ function Game(): ReactElement {
                 />
             </Grid2>
         </div>
-        {accreditation && (numGuesses > 10 || finished)?
+        {accreditation && (numGuesses > 0 || finished)?
         <div className="flex justify-end mx-auto w-[80vw] sm:w-[50vw] text-xs text-blue-700">
           <a href={accreditation.Link}>{accreditation.ImageName}</a>, &nbsp;
           {accreditation.ImageLicence? <a href={accreditation.ImageLicence}>{accreditation.LicenceName}</a> :
