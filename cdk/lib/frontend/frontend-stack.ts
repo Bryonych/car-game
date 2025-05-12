@@ -30,7 +30,6 @@ export class FrontendStack extends cdk.NestedStack {
       publicReadAccess: false,
       blockPublicAccess: s3.BlockPublicAccess.BLOCK_ALL,
       removalPolicy: cdk.RemovalPolicy.RETAIN,
-      autoDeleteObjects: true,
     });
 
     new cdk.CfnOutput(this, 'Bucket', {value: gameBucket.bucketName });
