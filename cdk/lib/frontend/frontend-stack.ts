@@ -21,6 +21,7 @@ export class FrontendStack extends cdk.NestedStack {
     const __filename = fileURLToPath(import.meta.url); // get the resolved path to the file
     const __dirname = path.dirname(__filename);
     const domain = "revealthewheels.com";
+    const certificateArn = process.env.CERTIFICATE_ARN;
   
     new cdk.CfnOutput(this, 'Site', {value: 'https://revealthewheels.com'});
 
@@ -39,11 +40,8 @@ export class FrontendStack extends cdk.NestedStack {
       domainName: domain,
     })
 
-    // Create SSL cert for domain
-    const certificate = new acm.Certificate(this, 'SiteCertificate', {
-      domainName: domain,
-      validation: acm.CertificateValidation.fromDns(zone), 
-    });
+    // Gets SSL cert for domain
+    const certificate = acm.Certificate.fromCertificateArn(this, 'Certificate', certificateArn!);
 
     new cdk.CfnOutput(this, 'Certificate', {value: certificate.certificateArn});
 
