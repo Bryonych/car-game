@@ -116,7 +116,7 @@ function Game(): ReactElement {
     useEffect(() => {
         loadState();
         if (todaysImage === undefined) {
-            const date = new Date().toLocaleString("en-GB")
+            const date = new Date().toLocaleString("en-GB").substring(0,10);
             setTodaysDate(date);
             // const date = "18/05/2025";
             // setTodaysDate("18/05/2025");
