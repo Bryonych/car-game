@@ -7,6 +7,7 @@ import * as cloudfront_origins from 'aws-cdk-lib/aws-cloudfront-origins';
 import * as route53 from 'aws-cdk-lib/aws-route53';
 import * as targets from 'aws-cdk-lib/aws-route53-targets';
 import * as s3deploy from 'aws-cdk-lib/aws-s3-deployment';
+import * as ssm from 'aws-cdk-lib/aws-ssm';
 import * as path from 'path';
 import { fileURLToPath } from 'url';
 
@@ -21,7 +22,7 @@ export class FrontendStack extends cdk.NestedStack {
     const __filename = fileURLToPath(import.meta.url); // get the resolved path to the file
     const __dirname = path.dirname(__filename);
     const domain = "revealthewheels.com";
-    const certificateArn = process.env.CERTIFICATE_ARN;
+    const certificateArn = ssm.StringParameter.valueForStringParameter(this, '/car-game/certarn');
   
     new cdk.CfnOutput(this, 'Site', {value: 'https://revealthewheels.com'});
 
@@ -41,9 +42,7 @@ export class FrontendStack extends cdk.NestedStack {
     })
 
     // Gets SSL cert for domain
-    const certificate = acm.Certificate.fromCertificateArn(this, 'Certificate', certificateArn!);
-
-    new cdk.CfnOutput(this, 'Certificate', {value: certificate.certificateArn});
+    const certificate = acm.Certificate.fromCertificateArn(this, 'Cert', certificateArn);
 
     // Create Cloudfront distribution
     const distribution = new cloudfront.Distribution(this, 'SiteDistribution', {

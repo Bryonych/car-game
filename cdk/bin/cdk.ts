@@ -12,6 +12,6 @@ new CdkStack(app, 'CdkStack', {
    * and Region that are implied by the current CLI configuration. */
   env: { 
     account: process.env.CDK_DEFAULT_ACCOUNT, 
-    region: process.env.CDK_DEFAULT_REGION 
+    region: process.env.CDK_DEFAULT_REGION,
   },
 });
