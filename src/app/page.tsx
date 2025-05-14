@@ -86,13 +86,15 @@ function Game(): ReactElement {
      * @param guessed   Boolean for whether they guessed correctly or not.
      */
     const handleShare = (guessed: boolean) => {
-      const text = guessed? "I guessed today's car after removing " + numGuesses + " tiles" :
-              "I didn't guess today's car after removing 15 tiles";
+      const frontCar = String.fromCodePoint(0x1F698);
+      const sideCar = String.fromCodePoint(0x1F697);
+      const text = guessed? frontCar + " I guessed " + todaysDate + "'s car after removing " + numGuesses + " tiles " + frontCar :
+              sideCar + " I didn't guess today's car after removing 15 tiles " + sideCar;
       if (navigator.share) {
       navigator.share({
         title: "Car Game Result",
         text: text,
-        url: "https://d1u0cr4tt1us5e.cloudfront.net/" // need to update with domain once created
+        url: "https://revealthewheels.com" 
       }).catch((error) => console.log("Sharing failed", error));
       } else {
         alert("Sharing not supported on this browser");
@@ -128,9 +130,14 @@ function Game(): ReactElement {
                   setAccreditaion(res['cardata']['Image-Credit']);
                 }
                 const items: string[] = [];
+                // Ignore the fields that aren't hints and convert the ones that are to appropriate string
                 for (const [key, value] of Object.entries(res['cardata'])) {
+                  let data = value;
+                  if (typeof data === "string") data = data.toString().toLowerCase();
                   if (key !== "Model" && key !== "Make" && key !== "S3-Key" && key !== "Date" && key !== "Image-Credit") {
-                    items.push(key.replace(/-/g, " ") + ": " + value);
+                    if (key === "Cylinders") items.push(" number of number of cylinders is " + data);
+                    if (key === "Vehicle-Size-Class") items.push(" size class is " + data);
+                    else items.push(key.toLowerCase().replace(/-/g, " ") + " is " + data);
                   }
                 }
                 setTodaysCarInfo(items);
@@ -163,12 +170,13 @@ function Game(): ReactElement {
      */
     function createTiles() {
       const createdTiles = [];
+      const frontCar: string = String.fromCodePoint(0x1F698);
       const randomTiles = getRandomNumbers(14,7);
       let idx = 0;
       for (let i = 0; i < 15; i++ ) {
-        let content: string = "";
+        let content: string = frontCar + " No clue here " + frontCar;
         if (randomTiles.has(i) && idx < 7 && todaysCarInfo != undefined) {
-          content = todaysCarInfo[idx];
+          content = "Hint: vehicle's " + todaysCarInfo[idx];
           idx ++;
         }
         const c: Tile = {
@@ -254,7 +262,7 @@ function Game(): ReactElement {
                     "absolute h-full w-full left-0 top-0 bg-white opacity-0 z-10",
                     selected?.id ? "pointer-events-auto" : "pointer-events-none"
                     )}
-                    animate={{ opacity: selected?.id ? 0.3 : 0 }}
+                    animate={{ opacity: selected?.id ? 0.8 : 0 }}
                 />
             </Grid2>
         </div>
@@ -265,7 +273,7 @@ function Game(): ReactElement {
           <p>{accreditation.LicenceName}</p> }
         </div> : <></> }
         <div className="flex justify-center items-center mx-auto m-5 sm:w-[70vw]">
-          <div className="w-full max-w-md">
+          <div className="w-full max-w-md bg-white">
             <FormControl fullWidth>
               <Autocomplete
                 options={guessOptions}

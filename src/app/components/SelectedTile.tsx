@@ -38,7 +38,7 @@ const SelectedTile = ({ selected }: { selected: Tile | null }) => {
             duration: 0.3,
             ease: "easeInOut",
           }}
-          className="relative px-8 pb-3 z-[70] text-white"
+          className="relative px-4 pb-4 z-[70] text-white text-center"
         >
           {selected?.content}
         </motion.div>
