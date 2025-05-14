@@ -6,7 +6,7 @@ import { cn } from "../../lib/utils.ts";
 import { getTodaysCar, getRandomNumbers } from './data/getData.tsx';
 import { Tile, TileColors, Accreditation } from "./data/interfaces.tsx";
 import SelectedTile from "./components/SelectedTile.tsx";
-import { FormControl, Autocomplete, TextField, Container, Grid2, Chip, Box } from "@mui/material";
+import { FormControl, Autocomplete, TextField, Container, Grid2, Chip, Box, CircularProgress } from "@mui/material";
 import Image from 'next/image';
 import { Alert, Button } from '@mui/material';
 import { localStateStore } from './data/handleLocalState.tsx';
@@ -31,6 +31,7 @@ function Game(): ReactElement {
     const [canGuess, setCanGuess] = useState<boolean>(false);
     const [finished, setFinished] = useState<boolean>(false);
     const [accreditation, setAccreditaion] = useState<Accreditation>();
+    const [error, setError] = useState<string>();
     
     /**
      * When a tile is clicked by the user, sets the clicked tile as the selected if no tile
@@ -88,8 +89,8 @@ function Game(): ReactElement {
     const handleShare = (guessed: boolean) => {
       const frontCar = String.fromCodePoint(0x1F698);
       const sideCar = String.fromCodePoint(0x1F697);
-      const text = guessed? frontCar + " I guessed " + todaysDate + "'s car after removing " + numGuesses + " tiles " + frontCar :
-              sideCar + " I didn't guess today's car after removing 15 tiles " + sideCar;
+      const text = guessed? frontCar + " I guessed the car for " + todaysDate + " after removing " + numGuesses + " tiles " + frontCar :
+              sideCar + " I didn't guess the car for " + todaysDate + " after removing 15 tiles " + sideCar;
       if (navigator.share) {
       navigator.share({
         title: "Car Game Result",
@@ -120,8 +121,6 @@ function Game(): ReactElement {
         if (todaysImage === undefined) {
             const date = new Date().toLocaleString("en-GB").substring(0,10);
             setTodaysDate(date);
-            // const date = "18/05/2025";
-            // setTodaysDate("18/05/2025");
             getTodaysCar(date).then(res => {
               if (res !== undefined) {
                 setGuessOptions(res['carlist']);
@@ -135,13 +134,15 @@ function Game(): ReactElement {
                   let data = value;
                   if (typeof data === "string") data = data.toString().toLowerCase();
                   if (key !== "Model" && key !== "Make" && key !== "S3-Key" && key !== "Date" && key !== "Image-Credit") {
-                    if (key === "Cylinders") items.push(" number of number of cylinders is " + data);
-                    if (key === "Vehicle-Size-Class") items.push(" size class is " + data);
+                    if (key === "Cylinders") items.push(" number of cylinders is " + data);
+                    else if (key === "Vehicle-Size-Class") items.push(" size class is " + data);
                     else items.push(key.toLowerCase().replace(/-/g, " ") + " is " + data);
                   }
                 }
                 setTodaysCarInfo(items);
                 setAnswer((res['cardata']['S3-Key']).replaceAll('-', ' '));
+              } else {
+                setError("Sorry! We haven't been able to load a car for today. Try again later...")
               }
             });
         }
@@ -223,7 +224,12 @@ function Game(): ReactElement {
       localStateStore.setItem(JSON.stringify(state));
     }
 
-    return isLoading ? <div><p>Loading...</p></div>
+    return isLoading && error === undefined ? 
+      <div className="h-screen flex items-center justify-center">
+        <CircularProgress color="success" /></div>
+    : isLoading ? 
+      <div className="h-screen flex items-center justify-center px-5">
+        <p>{error}</p></div>
     : (
       <Container>
         <p className="flex justify-center text-blue-800 mt-15 mb-7 sm:mt-9 sm:mb-4">Remove a tile to make a guess</p>
