@@ -13,8 +13,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Car Game",
-  description: "Guess the car game",
+  title: "Reveal the Wheels",
+  description: "Guess the car daily game",
 };
 
 export default function RootLayout({

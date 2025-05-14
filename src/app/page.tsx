@@ -6,7 +6,7 @@ import { cn } from "../../lib/utils.ts";
 import { getTodaysCar, getRandomNumbers } from './data/getData.tsx';
 import { Tile, TileColors, Accreditation } from "./data/interfaces.tsx";
 import SelectedTile from "./components/SelectedTile.tsx";
-import { FormControl, Autocomplete, TextField, Container, Grid2, Chip, Box } from "@mui/material";
+import { FormControl, Autocomplete, TextField, Container, Grid2, Chip, Box, CircularProgress } from "@mui/material";
 import Image from 'next/image';
 import { Alert, Button } from '@mui/material';
 import { localStateStore } from './data/handleLocalState.tsx';
@@ -31,6 +31,7 @@ function Game(): ReactElement {
     const [canGuess, setCanGuess] = useState<boolean>(false);
     const [finished, setFinished] = useState<boolean>(false);
     const [accreditation, setAccreditaion] = useState<Accreditation>();
+    const [error, setError] = useState<string>();
     
     /**
      * When a tile is clicked by the user, sets the clicked tile as the selected if no tile
@@ -86,13 +87,15 @@ function Game(): ReactElement {
      * @param guessed   Boolean for whether they guessed correctly or not.
      */
     const handleShare = (guessed: boolean) => {
-      const text = guessed? "I guessed today's car after removing " + numGuesses + " tiles" :
-              "I didn't guess today's car after removing 15 tiles";
+      const frontCar = String.fromCodePoint(0x1F698);
+      const sideCar = String.fromCodePoint(0x1F697);
+      const text = guessed? frontCar + " I guessed the car for " + todaysDate + " after removing " + numGuesses + " tiles " + frontCar :
+              sideCar + " I didn't guess the car for " + todaysDate + " after removing 15 tiles " + sideCar;
       if (navigator.share) {
       navigator.share({
         title: "Car Game Result",
         text: text,
-        url: "https://d1u0cr4tt1us5e.cloudfront.net/" // need to update with domain once created
+        url: "https://revealthewheels.com" 
       }).catch((error) => console.log("Sharing failed", error));
       } else {
         alert("Sharing not supported on this browser");
@@ -116,10 +119,8 @@ function Game(): ReactElement {
     useEffect(() => {
         loadState();
         if (todaysImage === undefined) {
-            const date = new Date().toLocaleString("en-GB")
+            const date = new Date().toLocaleString("en-GB").substring(0,10);
             setTodaysDate(date);
-            // const date = "18/05/2025";
-            // setTodaysDate("18/05/2025");
             getTodaysCar(date).then(res => {
               if (res !== undefined) {
                 setGuessOptions(res['carlist']);
@@ -128,13 +129,20 @@ function Game(): ReactElement {
                   setAccreditaion(res['cardata']['Image-Credit']);
                 }
                 const items: string[] = [];
+                // Ignore the fields that aren't hints and convert the ones that are to appropriate string
                 for (const [key, value] of Object.entries(res['cardata'])) {
+                  let data = value;
+                  if (typeof data === "string") data = data.toString().toLowerCase();
                   if (key !== "Model" && key !== "Make" && key !== "S3-Key" && key !== "Date" && key !== "Image-Credit") {
-                    items.push(key.replace(/-/g, " ") + ": " + value);
+                    if (key === "Cylinders") items.push(" number of cylinders is " + data);
+                    else if (key === "Vehicle-Size-Class") items.push(" size class is " + data);
+                    else items.push(key.toLowerCase().replace(/-/g, " ") + " is " + data);
                   }
                 }
                 setTodaysCarInfo(items);
                 setAnswer((res['cardata']['S3-Key']).replaceAll('-', ' '));
+              } else {
+                setError("Sorry! We haven't been able to load a car for today. Try again later...")
               }
             });
         }
@@ -163,12 +171,13 @@ function Game(): ReactElement {
      */
     function createTiles() {
       const createdTiles = [];
+      const frontCar: string = String.fromCodePoint(0x1F698);
       const randomTiles = getRandomNumbers(14,7);
       let idx = 0;
       for (let i = 0; i < 15; i++ ) {
-        let content: string = "";
+        let content: string = frontCar + " No clue here " + frontCar;
         if (randomTiles.has(i) && idx < 7 && todaysCarInfo != undefined) {
-          content = todaysCarInfo[idx];
+          content = "Hint: vehicle's " + todaysCarInfo[idx];
           idx ++;
         }
         const c: Tile = {
@@ -215,7 +224,12 @@ function Game(): ReactElement {
       localStateStore.setItem(JSON.stringify(state));
     }
 
-    return isLoading ? <div><p>Loading...</p></div>
+    return isLoading && error === undefined ? 
+      <div className="h-screen flex items-center justify-center">
+        <CircularProgress color="success" /></div>
+    : isLoading ? 
+      <div className="h-screen flex items-center justify-center px-5">
+        <p>{error}</p></div>
     : (
       <Container>
         <p className="flex justify-center text-blue-800 mt-15 mb-7 sm:mt-9 sm:mb-4">Remove a tile to make a guess</p>
@@ -254,7 +268,7 @@ function Game(): ReactElement {
                     "absolute h-full w-full left-0 top-0 bg-white opacity-0 z-10",
                     selected?.id ? "pointer-events-auto" : "pointer-events-none"
                     )}
-                    animate={{ opacity: selected?.id ? 0.3 : 0 }}
+                    animate={{ opacity: selected?.id ? 0.8 : 0 }}
                 />
             </Grid2>
         </div>
@@ -265,7 +279,7 @@ function Game(): ReactElement {
           <p>{accreditation.LicenceName}</p> }
         </div> : <></> }
         <div className="flex justify-center items-center mx-auto m-5 sm:w-[70vw]">
-          <div className="w-full max-w-md">
+          <div className="w-full max-w-md bg-white">
             <FormControl fullWidth>
               <Autocomplete
                 options={guessOptions}

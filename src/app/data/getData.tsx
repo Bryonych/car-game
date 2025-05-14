@@ -4,13 +4,10 @@
  * @returns     An oject containing the image URL, the list of cars and the car data.
  */
 export async function getTodaysCar(date: string)  {
-    let formatDate;
-    if (date[0] === ',') formatDate = date.substring(0,11);
-    else formatDate = date.substring(0,10);
     const api = process.env.API_URL;
     // console.log("API: " + api);
     try {
-        const res = await fetch(api! + "?date=" + formatDate);
+        const res = await fetch(api! + "?date=" + date);
         const resJson = await res.json();
         const imgBlob = base64ToBlob(resJson.image);
         const imageObjectURL = URL.createObjectURL(imgBlob);
