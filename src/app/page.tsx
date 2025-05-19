@@ -102,18 +102,6 @@ function Game(): ReactElement {
       }
     }
 
-    /**
-     * Filters the dropdown list based on charcters entered by the user
-     * @param options     The cars in the car list
-     * @param inputValue  The text entered by the user    
-     * @returns 
-     */
-    const filterOptions = (options: string[], { inputValue }: { inputValue: string }) => {
-      return options
-        .filter((option) => option.toLowerCase().includes(inputValue.toLowerCase()))
-        .slice(0, 500); // Limit results to 500
-    };
-
     // On load, either load the store state from their browser, or get the date from the user's 
     // browser and retreive the image and car data for this date from the backend.
     useEffect(() => {
@@ -283,7 +271,7 @@ function Game(): ReactElement {
             <FormControl fullWidth>
               <Autocomplete
                 options={guessOptions}
-                filterOptions={filterOptions}
+                slotProps={{popper:{placement: 'auto'}}}
                 renderInput={(params) => <TextField {...params} label="Guess" />}
                 disabled={!canGuess || finished}
                 onChange={(event, newValue: string | null) => { setSelection(newValue);}}
