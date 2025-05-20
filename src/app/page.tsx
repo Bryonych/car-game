@@ -212,7 +212,7 @@ function Game(): ReactElement {
       localStateStore.setItem(JSON.stringify(state));
     }
 
-    return isLoading && error === undefined ? 
+    return isLoading && error === undefined? 
       <div className="h-screen flex items-center justify-center">
         <CircularProgress color="success" /></div>
     : isLoading ? 
@@ -271,7 +271,7 @@ function Game(): ReactElement {
             <FormControl fullWidth>
               <Autocomplete
                 options={guessOptions}
-                slotProps={{popper:{placement: 'auto'}}}
+                slotProps={{popper:{placement: 'top'}}}
                 renderInput={(params) => <TextField {...params} label="Guess" />}
                 disabled={!canGuess || finished}
                 onChange={(event, newValue: string | null) => { setSelection(newValue);}}
