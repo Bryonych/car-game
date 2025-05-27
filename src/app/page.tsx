@@ -219,7 +219,7 @@ function Game(): ReactElement {
       <div className="h-screen flex items-center justify-center px-5">
         <p>{error}</p></div>
     : (
-      <Container>
+      <Container className="min-h-screen">
         <p className="flex justify-center text-blue-800 mt-15 mb-7 sm:mt-9 sm:mb-4">Remove a tile to make a guess</p>
         <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }} >
           <Chip
