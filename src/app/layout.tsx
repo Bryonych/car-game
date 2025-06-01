@@ -14,7 +14,7 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: "Reveal the Wheels",
-  description: "Guess the car daily game",
+  description: "Daily game for car fans. Remove the tiles to reveal clues about the car and make a guess. Compete with your friends by sharing your results.",
 };
 
 export default function RootLayout({
