@@ -148,10 +148,20 @@ function Game(): ReactElement {
       }
     }, [todaysImage, tiles]);
 
-    // Saves the state after a guess is made or the game is finished
+    // Removes all the tiles after a correct guess and saves the state 
+    // after a guess is made or the game is finished
     useEffect(() => {
+      if (correct && finished && previouslySelected.length != tiles.length) {
+        tiles.forEach((tile, idx) => {
+          if (!previouslySelected.includes(tile.id)) {
+            setTimeout(() => {
+              setPreviouslySelected(previouslySelected => [...previouslySelected, tile.id]);
+            }, idx*200);
+          }
+      });
+      }
       saveState();
-    }, [correct, finished]);
+    }, [correct, finished, previouslySelected]);
 
     /**
      * Creates 15 cards to appear over the image and randomly adds clues to the content
