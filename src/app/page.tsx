@@ -32,6 +32,7 @@ function Game(): ReactElement {
     const [finished, setFinished] = useState<boolean>(false);
     const [accreditation, setAccreditaion] = useState<Accreditation>();
     const [error, setError] = useState<string>();
+    const [clickedWhenNotLoaded, setClickedWhenNotLoaded] = useState<Tile | null>();
     
     /**
      * When a tile is clicked by the user, sets the clicked tile as the selected if no tile
@@ -42,10 +43,16 @@ function Game(): ReactElement {
      */
     const handleClick = (tile: Tile | null) => {
         if (selected === null) {
-          setSelected(tile);
-          setSelection("");
-          // Set correct flag to undefined, so user can make a guess after next click
-          if (!correct) setCorrect(undefined);
+          // If user clicks a tile before the image has loaded display loading element
+          if (todaysImage === undefined) {
+            setClickedWhenNotLoaded(tile);
+          }
+          else {
+            setSelected(tile);
+            setSelection("");
+            // Set correct flag to undefined, so user can make a guess after next click
+            if (!correct) setCorrect(undefined);
+          }
         } else {
           setPreviouslySelected([...previouslySelected, selected.id]);
           setSelected(null);
@@ -130,7 +137,7 @@ function Game(): ReactElement {
                 setTodaysCarInfo(items);
                 setAnswer((res['cardata']['S3-Key']).replaceAll('-', ' '));
               } else {
-                setError("Sorry! We haven't been able to load a car for today. Try again later...")
+                setError("Sorry! We haven't been able to load a car for today. Try again later...");
               }
             });
         }
@@ -141,12 +148,21 @@ function Game(): ReactElement {
         createTiles();
     }, [todaysCarInfo]);
 
-    // Once car data is retrieved and tiles are created, displays the game
+    // Once tiles are created, displays the game
     useEffect(() => {
-      if (tiles.length > 0 && todaysImage !== undefined) {
-        setIsLoading(false);
+      if (tiles.length > 0 && error === undefined) setIsLoading(false);
+      else if (error) setIsLoading(true);
+    }, [tiles, error]);
+
+    // Once the image is loaded, check if a tile has already been clicked. If it has, remove loading element
+    // and handle click
+    useEffect(() => {
+      if (todaysImage !== undefined && clickedWhenNotLoaded !== undefined) {
+        const clicked = clickedWhenNotLoaded;
+        setClickedWhenNotLoaded(undefined);
+        handleClick(clicked);
       }
-    }, [todaysImage, tiles]);
+    }, [todaysImage])
 
     // Removes all the tiles after a correct guess and saves the state 
     // after a guess is made or the game is finished
@@ -225,7 +241,7 @@ function Game(): ReactElement {
     return isLoading && error === undefined? 
       <div className="h-screen flex items-center justify-center">
         <CircularProgress color="success" /></div>
-    : isLoading ? 
+    : isLoading && error ? 
       <div className="h-screen flex items-center justify-center px-5">
         <p>{error}</p></div>
     : (
@@ -237,9 +253,13 @@ function Game(): ReactElement {
             color="primary"/>
         </Box>
         <div className="relative w-[80vw] h-full sm:w-[50vw] mt-6 flex justify-center items-center mx-auto">
-            <Image className="absolute z-0 w-full max-h-full p-1 inset-0" src={todaysImage!} alt="Image" width={500} height={300} />
+            {todaysImage !== undefined ? 
+              <Image className="absolute z-0 w-full max-h-full p-1 inset-0" src={todaysImage!} alt="Image" width={500} height={300} />
+              : <></>}
             <Grid2 className="w-full h-full min-h-0 grid grid-cols-5 sm:grid-cols-3 relative">
                 {tiles.map((tile, i) => (
+                  clickedWhenNotLoaded === tile ? <div className="flex justify-center items-center" key={i}>
+                    <CircularProgress color="success"/></div> :
                   <div key={i} className={cn(tile.className, "")}>
                     <motion.div
                         onClick={() => handleClick(tile)}
@@ -254,7 +274,7 @@ function Game(): ReactElement {
                             : "bg-white "
                         )}
                         layoutId={`card-${tile.id}`}
-                        style={{ background:tile.color}}
+                        style={{ background:tile.color }}
                     >
                         {selected?.id === tile.id && <SelectedTile selected={selected} />}
                     </motion.div>

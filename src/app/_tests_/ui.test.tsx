@@ -64,7 +64,7 @@ describe('Render UI Tests', () => {
         expect(button).toHaveProperty('disabled', true);
         expect(dropDown).toHaveProperty('disabled', true);
     });
-    test('check that tiless are rendered', async () => {
+    test('check that tiles are rendered', async () => {
         await act(async () => {
             render(<App />);
         });
@@ -112,7 +112,7 @@ describe('Render UI Tests', () => {
                 expect(tile).toHaveClass('-z-40');
             });
         }, {timeout: 3000});
-    })
+    });
 
     it('should store item in local storage and then retrieve it', () => {
         localStateStore.setItem('test value');
@@ -126,6 +126,13 @@ describe('Render UI Tests', () => {
         expect(window.localStorage.removeItem).toHaveBeenCalledWith('car-game');
         const result = localStateStore.getItem();
         expect(result).toBe(null);
+    });
+
+    it('should display loading spinner before image is loaded', () => {
+        act(() => { render(<App />) });
+        const tiles = screen.getAllByTitle("tile");
+        fireEvent.click(tiles[7]);
+        expect(screen.getByRole('progressbar')).toBeInTheDocument();
     })
 });
 
