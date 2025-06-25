@@ -190,8 +190,10 @@ function Game(): ReactElement {
       let idx = 0;
       for (let i = 0; i < 15; i++ ) {
         let content: string = frontCar + " No clue here " + frontCar;
-        if (randomTiles.has(i) && idx < 7 && todaysCarInfo != undefined) {
-          content = "Hint: vehicle's " + todaysCarInfo[idx];
+        if (randomTiles.has(i) && idx < 7 && todaysCarInfo !== undefined) {
+          if (todaysCarInfo[idx] !== undefined) {
+            content = "Hint: vehicle's " + todaysCarInfo[idx];
+          }
           idx ++;
         }
         const c: Tile = {
