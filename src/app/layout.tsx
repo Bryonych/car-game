@@ -14,7 +14,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Reveal the Wheels",
+  title: "Reveal the Wheels - a daily game for car fans",
   description: "Daily game for car fans. Remove the tiles to reveal clues about the car and make a guess. Compete with your friends by sharing your results.",
 };
 
