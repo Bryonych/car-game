@@ -1,0 +1,9 @@
+# *
+User-agent: *
+Allow: /
+
+# Host
+Host: https://revealthewheels.com
+
+# Sitemaps
+Sitemap: https://revealthewheels.com/sitemap.xml
