@@ -9,10 +9,8 @@ describe('Get data tests', () => {
     });
 
     it("should return car data when api call is successful", async () => {
-        const imageFile = "123456789";
-        const encoded = Buffer.from(imageFile, 'binary').toString('base64');
         const mockData = { 
-            "image": encoded,
+            "image": "test.url/toimage.jpg",
             "carlist": ["cartwo", "carone"], 
             "cardata": { "Make": "Test Make", "Model": "Test Model", "Year": 1983 }
         }
@@ -27,8 +25,7 @@ describe('Get data tests', () => {
         expect(result).not.toBeUndefined();
         expect(result!["carlist"][0]).toEqual("carone");
         expect(result!["cardata"]).toEqual(mockData["cardata"]);
-        expect(result!["image"]).toContain("blob");
-        expect(result!["image"]).not.toEqual(mockData["image"]);
+        expect(result!["image"]).toContain("toimage.jpg");
         expect(global.fetch).toHaveBeenCalledWith(process.env.API_URL + "?date=19/03/2025");
     });
 
