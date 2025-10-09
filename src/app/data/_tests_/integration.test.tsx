@@ -11,7 +11,7 @@ describe("Get data integration test", () => {
         server.listen();
         const result = await getTodaysCar("19/03/2025");
         expect(result).not.toBeUndefined();
-        expect(result!["image"]).toContain("toimage.jpg");
+        expect(result!["image"]).toContain("blob");
         // Check it has sorted them
         expect(result!["carlist"][0]).toEqual("carone");
         expect(result!["cardata"]["Model"]).toEqual("test model");

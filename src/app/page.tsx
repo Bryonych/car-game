@@ -1,6 +1,6 @@
 'use client'
 
-import React, { ReactElement, useEffect, useState } from 'react';
+import React, { ReactElement, useEffect, useState, useCallback } from 'react';
 import { motion } from "framer-motion";
 import { cn } from "../../lib/utils.ts";
 import { getTodaysCar, getRandomNumbers } from './data/getData.tsx';
@@ -16,7 +16,6 @@ import { localStateStore } from './data/handleLocalState.tsx';
  * @returns The game object to display to the user.
  */
 function Game(): ReactElement {
-    const [imageLoaded, setImageLoaded] = useState(false);
     const [todaysImage, setTodaysImage] = useState<string>();
     const [todaysDate, setTodaysDate] = useState<string>();
     const [todaysCarInfo, setTodaysCarInfo] = useState<string[]>([]);
@@ -33,7 +32,7 @@ function Game(): ReactElement {
     const [finished, setFinished] = useState<boolean>(false);
     const [accreditation, setAccreditaion] = useState<Accreditation>();
     const [error, setError] = useState<string>();
-    const [spinnerTile, setSpinnerTile] = useState<Tile | null>();
+    const [clickedWhenNotLoaded, setClickedWhenNotLoaded] = useState<Tile | null>();
     
     /**
      * When a tile is clicked by the user, sets the clicked tile as the selected if no tile
@@ -44,10 +43,11 @@ function Game(): ReactElement {
      */
     const handleClick = (tile: Tile | null) => {
         if (selected === null) {
-          // If user clicks a tile before the image has loaded, show spinner immediately
-          if (todaysImage === undefined || !imageLoaded) {
-            setSpinnerTile(tile);
-          } else {
+          // If user clicks a tile before the image has loaded display loading element
+          if (todaysImage === undefined) {
+            setClickedWhenNotLoaded(tile);
+          }
+          else {
             setSelected(tile);
             setSelection("");
             // Set correct flag to undefined, so user can make a guess after next click
@@ -88,6 +88,19 @@ function Game(): ReactElement {
       // Disable drop down until next tile is removed
       setCanGuess(false);
     }
+
+        /**
+     * Creates and stores the state of the game in local storage
+     */
+    const saveState = useCallback(() => {
+      const state = {
+        previouslySelected: previouslySelected,
+        finished: finished,
+        correct: correct,
+        todaysDate: todaysDate
+      }
+      localStateStore.setItem(JSON.stringify(state));
+    },[previouslySelected, finished, correct, todaysDate]);
 
     /**
      * Creates a shareable object for sharing the results of the game.
@@ -141,49 +154,12 @@ function Game(): ReactElement {
               }
             });
         }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
-    // Creates the tiles once todays car data has been retrieved.
+    // Creates 15 cards to appear over the image and randomly adds clues to the content
+    // of 7 of them from the retrieved car data. 
     useEffect(() => {
-        createTiles();
-    }, [todaysCarInfo]);
-
-    // Once tiles are created, displays the game
-    useEffect(() => {
-      if (tiles.length > 0 && error === undefined) setIsLoading(false);
-      else if (error) setIsLoading(true);
-    }, [tiles, error]);
-
-    // Once the image is loaded, check if a tile has already been clicked. If it has, remove loading element
-    // and handle click
-    useEffect(() => {
-      if (imageLoaded && todaysImage !== undefined && spinnerTile !== undefined) {
-        const clicked = spinnerTile;
-        setSpinnerTile(undefined);
-        handleClick(clicked);
-      }
-    }, [imageLoaded])
-
-    // Removes all the tiles after a correct guess and saves the state 
-    // after a guess is made or the game is finished
-    useEffect(() => {
-      if (correct && finished && previouslySelected.length != tiles.length) {
-        tiles.forEach((tile, idx) => {
-          if (!previouslySelected.includes(tile.id)) {
-            setTimeout(() => {
-              setPreviouslySelected(previouslySelected => [...previouslySelected, tile.id]);
-            }, idx*200);
-          }
-      });
-      }
-      saveState();
-    }, [correct, finished, previouslySelected]);
-
-    /**
-     * Creates 15 cards to appear over the image and randomly adds clues to the content
-     * of 7 of them from the retrieved car data. 
-     */
-    function createTiles() {
       const createdTiles = [];
       const frontCar: string = String.fromCodePoint(0x1F698);
       const randomTiles = getRandomNumbers(14,7);
@@ -206,7 +182,41 @@ function Game(): ReactElement {
         createdTiles.push(c);
       }
       setTiles(createdTiles);
-    }
+    }, [todaysCarInfo]);
+
+    // Once tiles are created, displays the game
+    useEffect(() => {
+      if (tiles.length > 0 && error === undefined) setIsLoading(false);
+      else if (error) setIsLoading(true);
+    }, [tiles, error]);
+
+    // Once the image is loaded, check if a tile has already been clicked. If it has, remove loading element
+    // and handle click
+    useEffect(() => {
+      if (todaysImage !== undefined && clickedWhenNotLoaded !== undefined) {
+        const clicked = clickedWhenNotLoaded;
+        setClickedWhenNotLoaded(undefined);
+        handleClick(clicked);
+      }
+      // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [todaysImage,clickedWhenNotLoaded])
+
+    // Removes all the tiles after a correct guess and saves the state 
+    // after a guess is made or the game is finished
+    useEffect(() => {
+      if (correct && finished && previouslySelected.length != tiles.length) {
+        tiles.forEach((tile, idx) => {
+          if (!previouslySelected.includes(tile.id)) {
+            setTimeout(() => {
+              setPreviouslySelected(previouslySelected => [...previouslySelected, tile.id]);
+            }, idx*200);
+          }
+        });
+        saveState();
+      }
+    }, [correct, finished, previouslySelected, tiles, saveState]);
+
+
 
     /**
      * Retrieves the state from local storage and, if it matches todays date, loads
@@ -227,19 +237,6 @@ function Game(): ReactElement {
       }
     }
 
-    /**
-     * Creates and stores the state of the game in local storage
-     */
-    function saveState() {
-      const state = {
-        previouslySelected: previouslySelected,
-        finished: finished,
-        correct: correct,
-        todaysDate: todaysDate
-      }
-      localStateStore.setItem(JSON.stringify(state));
-    }
-
     return isLoading && error === undefined? 
       <div className="h-screen flex items-center justify-center">
         <CircularProgress color="success" /></div>
@@ -256,42 +253,31 @@ function Game(): ReactElement {
         </Box>
         <div className="relative w-[80vw] h-full sm:w-[50vw] mt-6 flex justify-center items-center mx-auto">
             {todaysImage !== undefined ? 
-              <Image 
-                className="absolute z-0 w-full max-h-full p-1 inset-0" 
-                src={todaysImage!} 
-                alt="Image" 
-                width={500} 
-                height={300} 
-                onLoadingComplete={() => setImageLoaded(true)}
-              />
+              <Image className="absolute z-0 w-full max-h-full p-1 inset-0" src={todaysImage!} alt="Image" width={500} height={300} />
               : <></>}
             <Grid2 className="w-full h-full min-h-0 grid grid-cols-5 sm:grid-cols-3 relative">
                 {tiles.map((tile, i) => (
-                  (!imageLoaded && spinnerTile === tile) ? (
-                    <div className="flex justify-center items-center" key={i}>
-                      <CircularProgress color="success"/>
-                    </div>
-                  ) : (
-                    <div key={i} className={cn(tile.className, "")}> 
-                      <motion.div
-                          onClick={() => handleClick(tile)}
-                          title="tile"
-                          className={cn(
-                          tile.className,
-                          "relative overflow-hidden h-[8vh] sm:h-[11vh]",
-                          selected?.id === tile.id
-                              ? "rounded-lg cursor-pointer absolute inset-0 h-1/2 md:w-1/2 m-auto z-50 flex justify-center items-center flex-wrap flex-col"
-                              : previouslySelected.includes(tile.id)
-                              ? "-z-40 bg-white"
-                              : "bg-white "
-                          )}
-                          layoutId={`card-${tile.id}`}
-                          style={{ background:tile.color }}
-                      >
-                          {selected?.id === tile.id && <SelectedTile selected={selected} />}
-                      </motion.div>
-                    </div>
-                  )
+                  clickedWhenNotLoaded === tile ? <div className="flex justify-center items-center" key={i}>
+                    <CircularProgress color="success"/></div> :
+                  <div key={i} className={cn(tile.className, "")}>
+                    <motion.div
+                        onClick={() => handleClick(tile)}
+                        title="tile"
+                        className={cn(
+                        tile.className,
+                        "relative overflow-hidden h-[8vh] sm:h-[11vh]",
+                        selected?.id === tile.id
+                            ? "rounded-lg cursor-pointer absolute inset-0 h-1/2 md:w-1/2 m-auto z-50 flex justify-center items-center flex-wrap flex-col"
+                            : previouslySelected.includes(tile.id)
+                            ? "-z-40 bg-white"
+                            : "bg-white "
+                        )}
+                        layoutId={`card-${tile.id}`}
+                        style={{ background:tile.color }}
+                    >
+                        {selected?.id === tile.id && <SelectedTile selected={selected} />}
+                    </motion.div>
+                  </div>
                 ))}
                  <motion.div
                     onClick={() => handleClick(null)}

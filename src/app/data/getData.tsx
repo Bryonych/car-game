@@ -9,8 +9,10 @@ export async function getTodaysCar(date: string)  {
     try {
         const res = await fetch(api! + "?date=" + date);
         const resJson = await res.json();
+        const imgBlob = base64ToBlob(resJson.image);
+        const imageObjectURL = URL.createObjectURL(imgBlob);
         const carData = {
-            "image": resJson.image, // Now a direct URL
+            "image": imageObjectURL,
             "carlist": (resJson.carlist).sort(),
             "cardata": resJson.cardata
         }
@@ -21,6 +23,24 @@ export async function getTodaysCar(date: string)  {
     }
 }
 
+/**
+ * Converts the base64 string of the image to a Blob object.
+ * @param base64    The base64 representation of the image 
+ * @returns         The image converted to a Blob
+ */
+export function base64ToBlob(base64: string) {
+    const byteCharacters = atob(base64);
+    const byteArrays = [];
+    for (let i = 0; i < byteCharacters.length; i += 512) {
+        const slice = byteCharacters.slice(i, i + 512);
+        const byteNumbers = new Array(slice.length);
+        for (let j = 0; j < slice.length; j++) {
+            byteNumbers[j] = slice.charCodeAt(j);
+        }
+        byteArrays.push(new Uint8Array(byteNumbers));
+    }
+    return new Blob(byteArrays, { type: "image/jpeg" });
+}
 
 /**
  * Returns a list of 'total' random numbers between 0 and end.
