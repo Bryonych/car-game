@@ -39,7 +39,7 @@ function Game(): ReactElement {
      * is already selected. If a tile was already selected, sets it to previously selected and 
      * sets selected to null, increases the count of tile removed, then changes the canGuess flag, 
      * so that the user can make a guess.
-     * @param tile The tile the user has clicked on.
+     * @param tile  The tile the user has clicked on.
      */
     const handleClick = (tile: Tile | null) => {
         if (selected === null) {
