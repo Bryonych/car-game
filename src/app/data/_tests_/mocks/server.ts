@@ -3,7 +3,7 @@ import { http, HttpResponse } from "msw";
 
 
 const mockResponse = {
-    "image": "test.url/toimage.jpg",
+    "image": Buffer.from("123456789", 'binary').toString('base64'),
     "carlist": ["cartwo", "carone"],
     "cardata": {
         "Make": "test make",
@@ -16,4 +16,3 @@ export const server = setupServer(
     return HttpResponse.json(mockResponse);
   })
 );
-

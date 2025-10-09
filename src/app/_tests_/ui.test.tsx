@@ -135,5 +135,3 @@ describe('Render UI Tests', () => {
         expect(screen.getByRole('progressbar')).toBeInTheDocument();
     })
 });
-
-
