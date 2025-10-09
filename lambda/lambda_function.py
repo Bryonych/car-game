@@ -1,5 +1,7 @@
 import json
 import boto3
+import base64
+import random
 
 s3_client = boto3.client('s3')
 dynamodb = boto3.resource('dynamodb')
@@ -41,14 +43,11 @@ def lambda_handler(event, context):
         todays_car = convert_decimals(get_todays_car(user_date))
         car_key = todays_car['S3-Key']
         s3_key = car_key + '/image.jpg'
-        # Generate a pre-signed URL for the image
-        presigned_url = s3_client.generate_presigned_url(
-            'get_object',
-            Params={'Bucket': bucket, 'Key': s3_key},
-            ExpiresIn=3600  # 1 hour expiry
-        )
+        response = s3_client.get_object(Bucket=bucket, Key=s3_key)
+        image_file = response['Body'].read()
+        encode_file = base64.b64encode(image_file).decode('utf-8')
         data = {
-            "image": presigned_url,
+            "image": encode_file,
             "carlist": car_list,
             "cardata": todays_car
         }
