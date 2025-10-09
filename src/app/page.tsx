@@ -16,6 +16,7 @@ import { localStateStore } from './data/handleLocalState.tsx';
  * @returns The game object to display to the user.
  */
 function Game(): ReactElement {
+    const [imageLoaded, setImageLoaded] = useState(false);
     const [todaysImage, setTodaysImage] = useState<string>();
     const [todaysDate, setTodaysDate] = useState<string>();
     const [todaysCarInfo, setTodaysCarInfo] = useState<string[]>([]);
@@ -32,22 +33,21 @@ function Game(): ReactElement {
     const [finished, setFinished] = useState<boolean>(false);
     const [accreditation, setAccreditaion] = useState<Accreditation>();
     const [error, setError] = useState<string>();
-    const [clickedWhenNotLoaded, setClickedWhenNotLoaded] = useState<Tile | null>();
+    const [spinnerTile, setSpinnerTile] = useState<Tile | null>();
     
     /**
      * When a tile is clicked by the user, sets the clicked tile as the selected if no tile
      * is already selected. If a tile was already selected, sets it to previously selected and 
      * sets selected to null, increases the count of tile removed, then changes the canGuess flag, 
      * so that the user can make a guess.
-     * @param tile  The tile the user has clicked on.
+     * @param tile The tile the user has clicked on.
      */
     const handleClick = (tile: Tile | null) => {
         if (selected === null) {
-          // If user clicks a tile before the image has loaded display loading element
-          if (todaysImage === undefined) {
-            setClickedWhenNotLoaded(tile);
-          }
-          else {
+          // If user clicks a tile before the image has loaded, show spinner immediately
+          if (todaysImage === undefined || !imageLoaded) {
+            setSpinnerTile(tile);
+          } else {
             setSelected(tile);
             setSelection("");
             // Set correct flag to undefined, so user can make a guess after next click
@@ -157,12 +157,12 @@ function Game(): ReactElement {
     // Once the image is loaded, check if a tile has already been clicked. If it has, remove loading element
     // and handle click
     useEffect(() => {
-      if (todaysImage !== undefined && clickedWhenNotLoaded !== undefined) {
-        const clicked = clickedWhenNotLoaded;
-        setClickedWhenNotLoaded(undefined);
+      if (imageLoaded && todaysImage !== undefined && spinnerTile !== undefined) {
+        const clicked = spinnerTile;
+        setSpinnerTile(undefined);
         handleClick(clicked);
       }
-    }, [todaysImage])
+    }, [imageLoaded])
 
     // Removes all the tiles after a correct guess and saves the state 
     // after a guess is made or the game is finished
@@ -256,31 +256,42 @@ function Game(): ReactElement {
         </Box>
         <div className="relative w-[80vw] h-full sm:w-[50vw] mt-6 flex justify-center items-center mx-auto">
             {todaysImage !== undefined ? 
-              <Image className="absolute z-0 w-full max-h-full p-1 inset-0" src={todaysImage!} alt="Image" width={500} height={300} />
+              <Image 
+                className="absolute z-0 w-full max-h-full p-1 inset-0" 
+                src={todaysImage!} 
+                alt="Image" 
+                width={500} 
+                height={300} 
+                onLoadingComplete={() => setImageLoaded(true)}
+              />
               : <></>}
             <Grid2 className="w-full h-full min-h-0 grid grid-cols-5 sm:grid-cols-3 relative">
                 {tiles.map((tile, i) => (
-                  clickedWhenNotLoaded === tile ? <div className="flex justify-center items-center" key={i}>
-                    <CircularProgress color="success"/></div> :
-                  <div key={i} className={cn(tile.className, "")}>
-                    <motion.div
-                        onClick={() => handleClick(tile)}
-                        title="tile"
-                        className={cn(
-                        tile.className,
-                        "relative overflow-hidden h-[8vh] sm:h-[11vh]",
-                        selected?.id === tile.id
-                            ? "rounded-lg cursor-pointer absolute inset-0 h-1/2 md:w-1/2 m-auto z-50 flex justify-center items-center flex-wrap flex-col"
-                            : previouslySelected.includes(tile.id)
-                            ? "-z-40 bg-white"
-                            : "bg-white "
-                        )}
-                        layoutId={`card-${tile.id}`}
-                        style={{ background:tile.color }}
-                    >
-                        {selected?.id === tile.id && <SelectedTile selected={selected} />}
-                    </motion.div>
-                  </div>
+                  (!imageLoaded && spinnerTile === tile) ? (
+                    <div className="flex justify-center items-center" key={i}>
+                      <CircularProgress color="success"/>
+                    </div>
+                  ) : (
+                    <div key={i} className={cn(tile.className, "")}> 
+                      <motion.div
+                          onClick={() => handleClick(tile)}
+                          title="tile"
+                          className={cn(
+                          tile.className,
+                          "relative overflow-hidden h-[8vh] sm:h-[11vh]",
+                          selected?.id === tile.id
+                              ? "rounded-lg cursor-pointer absolute inset-0 h-1/2 md:w-1/2 m-auto z-50 flex justify-center items-center flex-wrap flex-col"
+                              : previouslySelected.includes(tile.id)
+                              ? "-z-40 bg-white"
+                              : "bg-white "
+                          )}
+                          layoutId={`card-${tile.id}`}
+                          style={{ background:tile.color }}
+                      >
+                          {selected?.id === tile.id && <SelectedTile selected={selected} />}
+                      </motion.div>
+                    </div>
+                  )
                 ))}
                  <motion.div
                     onClick={() => handleClick(null)}
