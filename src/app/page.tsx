@@ -41,7 +41,7 @@ function Game(): ReactElement {
      * so that the user can make a guess.
      * @param tile The tile the user has clicked on.
      */
-    const handleClick = (tile: Tile | null) => {
+    const handleClick = useCallback((tile: Tile | null) => {
         if (selected === null) {
           // If user clicks a tile before the image has loaded display loading element
           if (todaysImage === undefined) {
@@ -64,7 +64,7 @@ function Game(): ReactElement {
             setCanGuess(true);
           }
         }
-    };
+    },[selected, todaysImage, previouslySelected, numGuesses, correct, finished]);
 
     /**
      * When the submit button is clicked, check if answer is correct and 
@@ -89,7 +89,7 @@ function Game(): ReactElement {
       setCanGuess(false);
     }
 
-        /**
+    /**
      * Creates and stores the state of the game in local storage
      */
     const saveState = useCallback(() => {
@@ -198,8 +198,7 @@ function Game(): ReactElement {
         setClickedWhenNotLoaded(undefined);
         handleClick(clicked);
       }
-      // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [todaysImage,clickedWhenNotLoaded])
+    }, [todaysImage,clickedWhenNotLoaded, handleClick])
 
     // Removes all the tiles after a correct guess and saves the state 
     // after a guess is made or the game is finished
