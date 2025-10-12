@@ -1,6 +1,6 @@
 'use client'
 
-import React, { ReactElement, useEffect, useState, useCallback } from 'react';
+import React, { ReactElement, useEffect, useState, useCallback, useMemo } from 'react';
 import { motion } from "framer-motion";
 import { cn } from "../../lib/utils.ts";
 import { getTodaysCar, getRandomNumbers } from './data/getData.tsx';
@@ -17,11 +17,11 @@ import { localStateStore } from './data/handleLocalState.tsx';
  */
 function Game(): ReactElement {
     const [todaysImage, setTodaysImage] = useState<string>();
+    const [imageLoaded, setImageLoaded] = useState<boolean>(false);
     const [todaysDate, setTodaysDate] = useState<string>();
     const [todaysCarInfo, setTodaysCarInfo] = useState<string[]>([]);
     const [selected, setSelected] = useState<Tile | null>(null);
     const [previouslySelected, setPreviouslySelected] = useState<number[]>([]);
-    const [tiles, setTiles] = useState<Tile[]>([]);
     const [isLoading, setIsLoading] = useState<boolean>(true);
     const [selection, setSelection] = useState<string | null>("");
     const [guessOptions, setGuessOptions] = useState<string[]>([]);
@@ -41,10 +41,10 @@ function Game(): ReactElement {
      * so that the user can make a guess.
      * @param tile The tile the user has clicked on.
      */
-    const handleClick = useCallback((tile: Tile | null) => {
+    const handleClick = (tile: Tile | null) => {
         if (selected === null) {
           // If user clicks a tile before the image has loaded display loading element
-          if (todaysImage === undefined) {
+          if (!imageLoaded) {
             setClickedWhenNotLoaded(tile);
           }
           else {
@@ -64,7 +64,7 @@ function Game(): ReactElement {
             setCanGuess(true);
           }
         }
-    },[selected, todaysImage, previouslySelected, numGuesses, correct, finished]);
+    }
 
     /**
      * When the submit button is clicked, check if answer is correct and 
@@ -122,6 +122,35 @@ function Game(): ReactElement {
       }
     }
 
+    /** 
+      * Creates 15 tiles to appear over the image and randomly adds clues to the content
+      * of 7 of them from the retrieved car data. 
+      */
+    const tiles = useMemo(() => {
+      const createdTiles = [];
+      const frontCar: string = String.fromCodePoint(0x1F698);
+      const randomTiles = getRandomNumbers(14,7);
+      let idx = 0;
+      for (let i = 0; i < 15; i++ ) {
+        let content: string = frontCar + " No clue here " + frontCar;
+        if (randomTiles.has(i) && idx < 7 && todaysCarInfo !== undefined) {
+          if (todaysCarInfo[idx] !== undefined) {
+            content = "Hint: vehicle's " + todaysCarInfo[idx];
+          }
+          idx ++;
+        }
+        const c: Tile = {
+          "id":createdTiles.length,
+          "content": content,
+          "className": "",
+          "thumbnail": "",
+          "color": TileColors[createdTiles.length]
+        }
+        createdTiles.push(c);
+      }
+      return createdTiles;
+    }, [todaysCarInfo]);
+
     // On load, either load the store state from their browser, or get the date from the user's 
     // browser and retreive the image and car data for this date from the backend.
     useEffect(() => {
@@ -154,35 +183,9 @@ function Game(): ReactElement {
               }
             });
         }
+        // Only checking todaysImage for undefined
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
-
-    // Creates 15 cards to appear over the image and randomly adds clues to the content
-    // of 7 of them from the retrieved car data. 
-    useEffect(() => {
-      const createdTiles = [];
-      const frontCar: string = String.fromCodePoint(0x1F698);
-      const randomTiles = getRandomNumbers(14,7);
-      let idx = 0;
-      for (let i = 0; i < 15; i++ ) {
-        let content: string = frontCar + " No clue here " + frontCar;
-        if (randomTiles.has(i) && idx < 7 && todaysCarInfo !== undefined) {
-          if (todaysCarInfo[idx] !== undefined) {
-            content = "Hint: vehicle's " + todaysCarInfo[idx];
-          }
-          idx ++;
-        }
-        const c: Tile = {
-          "id":createdTiles.length,
-          "content": content,
-          "className": "",
-          "thumbnail": "",
-          "color": TileColors[createdTiles.length]
-        }
-        createdTiles.push(c);
-      }
-      setTiles(createdTiles);
-    }, [todaysCarInfo]);
 
     // Once tiles are created, displays the game
     useEffect(() => {
@@ -193,12 +196,15 @@ function Game(): ReactElement {
     // Once the image is loaded, check if a tile has already been clicked. If it has, remove loading element
     // and handle click
     useEffect(() => {
-      if (todaysImage !== undefined && clickedWhenNotLoaded !== undefined) {
+      if (clickedWhenNotLoaded !== undefined && imageLoaded) {
         const clicked = clickedWhenNotLoaded;
         setClickedWhenNotLoaded(undefined);
-        handleClick(clicked);
+        setSelected(clicked);
+        setSelection("");
+        // Set correct flag to undefined, so user can make a guess after next click
+        if (!correct) setCorrect(undefined);
       }
-    }, [todaysImage,clickedWhenNotLoaded, handleClick])
+    }, [clickedWhenNotLoaded, imageLoaded, correct])
 
     // Removes all the tiles after a correct guess and saves the state 
     // after a guess is made or the game is finished
@@ -252,7 +258,14 @@ function Game(): ReactElement {
         </Box>
         <div className="relative w-[80vw] h-full sm:w-[50vw] mt-6 flex justify-center items-center mx-auto">
             {todaysImage !== undefined ? 
-              <Image className="absolute z-0 w-full max-h-full p-1 inset-0" src={todaysImage!} alt="Image" width={500} height={300} />
+              <Image 
+                className="absolute z-0 w-full max-h-full p-1 inset-0" 
+                src={todaysImage!} 
+                alt="Image" 
+                width={500} 
+                height={300} 
+                onLoad={() => setImageLoaded(true)}
+              />
               : <></>}
             <Grid2 className="w-full h-full min-h-0 grid grid-cols-5 sm:grid-cols-3 relative">
                 {tiles.map((tile, i) => (

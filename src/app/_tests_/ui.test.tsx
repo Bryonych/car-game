@@ -32,10 +32,12 @@ describe('Render UI Tests', () => {
                 }),
             };
         })();
-    
+        
         Object.defineProperty(window, 'localStorage', {
             value: localStorageMock,
         });
+        
+        
     });
     test('check text is displayed', async () => {
         await act(async () => {
@@ -75,6 +77,9 @@ describe('Render UI Tests', () => {
         await act(async () => {
             render(<App />);
         });
+        await userEvent.setup();    
+        const image = screen.getByAltText("Image");
+        fireEvent.load(image);
         const tiles = screen.getAllByTitle("tile");
         const button = screen.getByText("Submit");
         const dropDown = screen.getByRole("combobox");
@@ -93,6 +98,9 @@ describe('Render UI Tests', () => {
         await act(async () => {
             render(<App />);
         });
+        userEvent.setup();    
+        const image = screen.getByAltText("Image");
+        fireEvent.load(image);
         const tiles = screen.getAllByTitle("tile");
         const button = screen.getByText("Submit");
         const dropDown = screen.getByRole("combobox");
