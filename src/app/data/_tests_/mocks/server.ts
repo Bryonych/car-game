@@ -3,7 +3,7 @@ import { http, HttpResponse } from "msw";
 
 
 const mockResponse = {
-    "image": Buffer.from("123456789", 'binary').toString('base64'),
+    "image": "test.url/toimage.jpg",
     "carlist": ["cartwo", "carone"],
     "cardata": {
         "Make": "test make",
