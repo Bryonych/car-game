@@ -37,8 +37,17 @@ describe('Render UI Tests', () => {
             value: localStorageMock,
         });
         
+        global.requestIdleCallback = (cb: IdleRequestCallback): number => {
+            cb({
+                didTimeout: false,
+                timeRemaining: () => 50,
+            });
+            return 0;
+            };
+            global.cancelIdleCallback = () => {};
         
     });
+    
     test('check text is displayed', async () => {
         await act(async () => {
             render(<App />);

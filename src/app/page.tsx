@@ -33,6 +33,7 @@ function Game(): ReactElement {
     const [accreditation, setAccreditaion] = useState<Accreditation>();
     const [error, setError] = useState<string>();
     const [clickedWhenNotLoaded, setClickedWhenNotLoaded] = useState<Tile | null>();
+    const [shouldLoadImage, setShouldLoadImage] = useState(false);
     
     /**
      * When a tile is clicked by the user, sets the clicked tile as the selected if no tile
@@ -182,6 +183,11 @@ function Game(): ReactElement {
                 setError("Sorry! We haven't been able to load a car for today. Try again later...");
               }
             });
+            if ('requestIdleCallback' in window) {
+              requestIdleCallback(() => setShouldLoadImage(true));
+            } else {
+              setTimeout(() => setShouldLoadImage(true), 500);
+            }
         }
         // Only checking todaysImage for undefined
         // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -204,7 +210,7 @@ function Game(): ReactElement {
         // Set correct flag to undefined, so user can make a guess after next click
         if (!correct) setCorrect(undefined);
       }
-    }, [clickedWhenNotLoaded, imageLoaded, correct])
+    }, [clickedWhenNotLoaded, imageLoaded, correct]);
 
     // Removes all the tiles after a correct guess and saves the state 
     // after a guess is made or the game is finished
@@ -214,7 +220,7 @@ function Game(): ReactElement {
           if (!previouslySelected.includes(tile.id)) {
             setTimeout(() => {
               setPreviouslySelected(previouslySelected => [...previouslySelected, tile.id]);
-            }, idx*200);
+            }, idx*100);
           }
         });
         saveState();
@@ -257,7 +263,7 @@ function Game(): ReactElement {
             color="primary"/>
         </Box>
         <div className="relative w-[80vw] h-full sm:w-[50vw] mt-6 flex justify-center items-center mx-auto">
-            {todaysImage !== undefined ? 
+            {shouldLoadImage && todaysImage !== undefined ? 
               <Image 
                 className="absolute z-0 w-full max-h-full p-1 inset-0" 
                 src={todaysImage!} 
