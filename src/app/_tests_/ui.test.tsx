@@ -102,7 +102,16 @@ describe('Render UI Tests', () => {
         // Check Button is now enabled
         expect(button).toHaveProperty('disabled', false);
     });
-
+    test('check the info button displays info', async () => {
+        await act(async () => {
+            render(<App />);
+        });
+        const infoButton = screen.getByTitle("info-button");
+        expect(infoButton).toBeDefined();
+        await fireEvent.click(infoButton);
+        const alert = screen.getByTitle("dialog");
+        expect(alert).toBeDefined();
+    });
     it('should move tiles behind image on correct guess', async () => {
         await act(async () => {
             render(<App />);
