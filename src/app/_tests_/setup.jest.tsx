@@ -12,3 +12,4 @@ jest.mock('next/image', () => ({
     return <img {...props} />;
   },
 }));
+

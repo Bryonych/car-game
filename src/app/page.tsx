@@ -8,8 +8,9 @@ import { Tile, TileColors, Accreditation } from "./data/interfaces.tsx";
 import SelectedTile from "./components/SelectedTile.tsx";
 import { FormControl, Autocomplete, TextField, Container, Grid2, Chip, Box, CircularProgress } from "@mui/material";
 import Image from 'next/image';
-import { Alert, Button } from '@mui/material';
+import { Alert, Button, IconButton, Dialog } from '@mui/material';
 import { localStateStore } from './data/handleLocalState.tsx';
+import InfoOutlinedIcon from "@mui/icons-material/InfoOutlined";
 
 /**
  * Represents the single-page game.
@@ -34,6 +35,7 @@ function Game(): ReactElement {
     const [error, setError] = useState<string>();
     const [clickedWhenNotLoaded, setClickedWhenNotLoaded] = useState<Tile | null>();
     const [shouldLoadImage, setShouldLoadImage] = useState(false);
+    const [displayInfo, setDisplayInfo] = useState<boolean>(false);
     
     /**
      * When a tile is clicked by the user, sets the clicked tile as the selected if no tile
@@ -256,7 +258,39 @@ function Game(): ReactElement {
         <p>{error}</p></div>
     : (
       <Container className="min-h-screen">
-        <p className="flex justify-center text-blue-800 mt-15 mb-7 sm:mt-9 sm:mb-4">Remove a tile to make a guess</p>
+        <h1 className="flex justify-center text-lg font-bold text-blue-800 mt-10 sm:mt-7">
+          Reveal the Wheels</h1>
+        <div className="flex justify-center mb-7 sm:mb-4">
+          <div className="inline-flex items-center gap-2">
+            <p className="text-blue-800 whitespace-nowrap">Remove a tile to make a guess</p>
+            <IconButton 
+              title="info-button"
+              size="small" 
+              className="bg-gray-300 text-gray-800 w-7 h-7 border border-gray-400 shadow-sm"
+              aria-label="More information"
+              onClick={() => {setDisplayInfo(true);}}>
+                <InfoOutlinedIcon fontSize="small"/>
+            </IconButton>
+          </div>
+        </div>
+        {displayInfo ? 
+        <Dialog title="dialog" open={displayInfo} onClose={() => setDisplayInfo(false)}>
+          <div className="p-6 max-w-md">
+            <h2 className="text-xl font-bold mb-4">How to Play</h2>
+            <p className="mb-4">
+              Each day, a new car image is revealed behind 15 tiles. Your goal is to guess the make and model of the car by removing tiles to reveal the car.
+            </p>
+            <ul className="list-disc list-inside mb-4">
+              <li>Click on a tile to remove it and reveal a clue and part of the car.</li>
+              <li>After removing a tile, you can make a guess from the dropdown menu.</li>
+              <li>If your guess is incorrect, you can remove another tile and try again.</li>
+              <li>You have a maximum of 15 tiles to remove. Use them wisely!</li>
+            </ul>
+            <p className="mb-4">
+              Good luck and have fun guessing the car of the day!
+            </p>
+            </div>
+        </Dialog> : <></>}
         <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }} >
           <Chip
             label={<Box>Tiles removed: {numGuesses}</Box>} 
