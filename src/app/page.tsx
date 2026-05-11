@@ -154,7 +154,7 @@ function Game(): ReactElement {
       return createdTiles;
     }, [todaysCarInfo]);
 
-    // On load, either load the store state from their browser, or get the date from the user's 
+    // On load, either load the store state from the browser, or get the date from the user's 
     // browser and retreive the image and car data for this date from the backend.
     useEffect(() => {
         loadState();
