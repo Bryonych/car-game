@@ -27,12 +27,11 @@ export class FrontendStack extends cdk.NestedStack {
     new cdk.CfnOutput(this, 'Site', {value: 'https://revealthewheels.com'});
 
     // Create S3 bucket for built code deployment
-    const gameBucket = new s3.Bucket(this, 'GameBucket', {
-      bucketName: 'car-game-75',
-      publicReadAccess: false,
-      blockPublicAccess: s3.BlockPublicAccess.BLOCK_ALL,
-      removalPolicy: cdk.RemovalPolicy.RETAIN,
-    });
+    const gameBucket = s3.Bucket.fromBucketName(
+      this, 
+      "GameBucket",
+      "car-game-75"
+     );
 
     new cdk.CfnOutput(this, 'Bucket', {value: gameBucket.bucketName });
 
@@ -42,29 +41,17 @@ export class FrontendStack extends cdk.NestedStack {
     })
 
     // Gets SSL cert for domain
-    const certificate = acm.Certificate.fromCertificateArn(this, 'Cert', certificateArn);
+    // const certificate = acm.Certificate.fromCertificateArn(this, 'Cert', certificateArn);
 
     // Create Cloudfront distribution
-    const distribution = new cloudfront.Distribution(this, 'SiteDistribution', {
-      certificate: certificate, 
-      defaultRootObject: "index.html",
-      domainNames: [domain],
-      minimumProtocolVersion: cloudfront.SecurityPolicyProtocol.TLS_V1_2_2021,
-      errorResponses: [
-        {
-          httpStatus: 403,
-          // responseHttpStatus: 403,
-          // responsePagePath: './error.html',
-          ttl: cdk.Duration.minutes(10),
-        }
-      ],
-      defaultBehavior: {
-        origin: cloudfront_origins.S3BucketOrigin.withOriginAccessControl(gameBucket),
-        compress: true,
-        allowedMethods: cloudfront.AllowedMethods.ALLOW_GET_HEAD_OPTIONS,
-        viewerProtocolPolicy: cloudfront.ViewerProtocolPolicy.REDIRECT_TO_HTTPS,
+    const distribution = cloudfront.Distribution.fromDistributionAttributes(
+      this, 
+      'SiteDistribution', 
+      {
+        distributionId: 'E8H116VZTKLH0',
+        domainName: 'd1u0cr4tt1us5e.cloudfront.net',
       }
-    });
+    );
 
     new cdk.CfnOutput(this, 'DistributionId', { value: distribution.distributionId });
 
