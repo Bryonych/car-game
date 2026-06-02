@@ -4,7 +4,7 @@ import { http } from "msw";
 
 describe("Get data integration test", () => {
     beforeAll(() => {
-        process.env.API_URL = "https://api.test.com/car";
+        process.env.URL = "https://api.test.com/car";
     });
 
     it("should return data from the API", async () => {
@@ -20,7 +20,7 @@ describe("Get data integration test", () => {
     it("should throw and catch error and return undefined", async () => {
         server.listen();
         server.use(
-            http.get("https://api.test.com/car", async () => {
+            http.post("https://api.test.com/car", async () => {
                 return new Response(null, { status: 500 });
             })
         );

@@ -3,20 +3,27 @@
  * @param date  The current date from the user's browser
  * @returns     An oject containing the image URL, the list of cars and the car data.
  */
-export async function getTodaysCar(date: string)  {
-    const api = process.env.API_URL;
-    // console.log("API: " + api);
+export async function getTodaysCar(date: string) {
+    const url = process.env.URL ?? '/api';
     try {
-        const res = await fetch(api! + "?date=" + date);
-        const resJson = await res.json();
-        const carData = {
-            "image": resJson.image, // Now a direct URL
-            "carlist": (resJson.carlist).sort(),
-            "cardata": resJson.cardata
+        const response = await fetch(url, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Accept': 'application/json',
+            },
+            body: JSON.stringify({ date }),
+        });
+        if (!response.ok) {
+            const errorData = await response.json();
+            console.log("Error retreiving car data: ",  errorData);
+            return undefined;
         }
-        return carData;
+        const data = await response.json();
+        data.carlist = data.carlist.sort();
+        return data;
     } catch (error) {
-        console.log("Unable to fetch today's car from DB:", error);
+        console.error("Unable to retrieve car data: ", error);
         return undefined;
     }
 }

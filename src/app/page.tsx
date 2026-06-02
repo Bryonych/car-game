@@ -160,6 +160,7 @@ function Game(): ReactElement {
         loadState();
         if (todaysImage === undefined) {
             const date = new Date().toLocaleString("en-GB").substring(0,10);
+            // const date = "17/06/2026";
             setTodaysDate(date);
             getTodaysCar(date).then(res => {
               if (res !== undefined) {
