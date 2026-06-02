@@ -12,7 +12,7 @@ const mockResponse = {
     }
 }
 export const server = setupServer(
-  http.post("https://api.test.com/car", async () => {
+  http.get("https://api.test.com/car", async () => {
     return HttpResponse.json(mockResponse);
   })
 );
