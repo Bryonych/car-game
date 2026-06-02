@@ -23,7 +23,6 @@ function Game(): ReactElement {
     const [todaysCarInfo, setTodaysCarInfo] = useState<string[]>([]);
     const [selected, setSelected] = useState<Tile | null>(null);
     const [previouslySelected, setPreviouslySelected] = useState<number[]>([]);
-    const [isLoading, setIsLoading] = useState<boolean>(true);
     const [selection, setSelection] = useState<string | null>("");
     const [guessOptions, setGuessOptions] = useState<string[]>([]);
     const [answer, setAnswer] = useState<string>("");
@@ -160,6 +159,7 @@ function Game(): ReactElement {
         loadState();
         if (todaysImage === undefined) {
             const date = new Date().toLocaleString("en-GB").substring(0,10);
+            // const date = "17/06/2026";
             setTodaysDate(date);
             getTodaysCar(date).then(res => {
               if (res !== undefined) {
@@ -194,12 +194,6 @@ function Game(): ReactElement {
         // Only checking todaysImage for undefined
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
-
-    // Once tiles are created, displays the game
-    useEffect(() => {
-      if (tiles.length > 0 && error === undefined) setIsLoading(false);
-      else if (error) setIsLoading(true);
-    }, [tiles, error]);
 
     // Once the image is loaded, check if a tile has already been clicked. If it has, remove loading element
     // and handle click
@@ -250,10 +244,7 @@ function Game(): ReactElement {
       }
     }
 
-    return isLoading && error === undefined? 
-      <div className="h-screen flex items-center justify-center">
-        <CircularProgress color="success" /></div>
-    : isLoading && error ? 
+    return error ? 
       <div className="h-screen flex items-center justify-center px-5">
         <p>{error}</p></div>
     : (
