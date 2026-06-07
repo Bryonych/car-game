@@ -34,7 +34,7 @@ export class BackendStack extends cdk.NestedStack {
     const api = new apigateway.RestApi(this, 'cars-api', {
       restApiName: 'cars-api',
       deployOptions: {
-        stageName: 'dev',
+        stageName: 'prod',
       }
     });
 
