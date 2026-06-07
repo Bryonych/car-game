@@ -25,7 +25,7 @@ describe('Get data tests', () => {
         expect(result!["carlist"][0]).toEqual("carone");
         expect(result!["cardata"]).toEqual(mockData["cardata"]);
         expect(result!["image"]).toContain("toimage.jpg");
-        expect(global.fetch).toHaveBeenCalledWith(process.env.API_URL + "?date=19/03/2025");
+        expect(global.fetch).toHaveBeenCalledWith("/api/car?date=19/03/2025");
     });
 
     it("should return the right number of numbers within the range", () => {
