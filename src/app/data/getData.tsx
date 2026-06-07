@@ -4,7 +4,7 @@
  * @returns     An oject containing the image URL, the list of cars and the car data.
  */
 export async function getTodaysCar(date: string)  {
-    const api = "/api/car";
+    const api = process.env.API_URL ?? "/api/car";
     // console.log("API: " + api);
     try {
         const res = await fetch(api + "?date=" + date);
