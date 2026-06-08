@@ -56,7 +56,9 @@ function Game(): ReactElement {
             if (!correct) setCorrect(undefined);
           }
         } else {
-          setPreviouslySelected([...previouslySelected, selected.id]);
+          if (!previouslySelected.includes(selected.id)) {
+            setPreviouslySelected(prev => [...prev, selected.id]);
+          }
           setSelected(null);
           if (!finished) {
             setNumGuesses(numGuesses+1);
@@ -78,6 +80,7 @@ function Game(): ReactElement {
         // If they got the right answer
         setCorrect(true);
         setFinished(true);
+        removeTiles();
       } else {
         // Wrong answer
         setCorrect(false);
@@ -89,6 +92,7 @@ function Game(): ReactElement {
       }
       // Disable drop down until next tile is removed
       setCanGuess(false);
+      saveState();
     }
 
     /**
@@ -96,10 +100,11 @@ function Game(): ReactElement {
      */
     const saveState = useCallback(() => {
       const state = {
-        previouslySelected: previouslySelected,
+        previouslySelected: JSON.stringify(previouslySelected),
         finished: finished,
         correct: correct,
-        todaysDate: todaysDate
+        todaysDate: todaysDate,
+        numGuesses: numGuesses
       }
       localStateStore.setItem(JSON.stringify(state));
     },[previouslySelected, finished, correct, todaysDate]);
@@ -208,22 +213,26 @@ function Game(): ReactElement {
       }
     }, [clickedWhenNotLoaded, imageLoaded, correct]);
 
+    // Saves the state once the removeTiles animation has run
+    useEffect(() => {
+      if (correct && finished && previouslySelected.length === tiles.length) {
+        saveState();
+      }
+    }, [correct, finished, previouslySelected, tiles.length, saveState]);
+
     // Removes all the tiles after a correct guess and saves the state 
     // after a guess is made or the game is finished
-    useEffect(() => {
-      if (correct && finished && previouslySelected.length != tiles.length) {
+    function removeTiles() {
+      if (previouslySelected.length != tiles.length) {
         tiles.forEach((tile, idx) => {
           if (!previouslySelected.includes(tile.id)) {
             setTimeout(() => {
-              setPreviouslySelected(previouslySelected => [...previouslySelected, tile.id]);
+              setPreviouslySelected(prev => [...prev, tile.id]);
             }, idx*100);
           }
         });
-        saveState();
       }
-    }, [correct, finished, previouslySelected, tiles, saveState]);
-
-
+    }
 
     /**
      * Retrieves the state from local storage and, if it matches todays date, loads
@@ -234,9 +243,16 @@ function Game(): ReactElement {
       const date = (new Date().toLocaleString("en-GB")).substring(0,10);
       if (stored === null) return;
       const storedObj = JSON.parse(stored);
+      let prevSelectedFromStore: number[] = [];
+      try {
+        prevSelectedFromStore = JSON.parse(storedObj['previouslySelected']);
+        if (!Array.isArray(prevSelectedFromStore)) {
+          prevSelectedFromStore = [];
+        }
+      } catch { prevSelectedFromStore = [];}
       if (storedObj['todaysDate'] && (storedObj['todaysDate']).substring(0,10) === date) {
-        setPreviouslySelected(storedObj['previouslySelected']);
-        setNumGuesses(storedObj['previouslySelected'].length);
+        setPreviouslySelected(prevSelectedFromStore);
+        setNumGuesses(storedObj['numGuesses'] ?? 0);
         setFinished(storedObj['finished']);
         setCorrect(storedObj['correct']);
       } else {
