@@ -40,6 +40,7 @@ def lambda_handler(event, context):
     headers = event['headers']
     secret = headers['X-CF-Secret'] if 'X-CF-Secret' in headers else headers['x-cf-secret'] if 'x-cf-secret' in headers else ''
     if secret == '' or not check_secret(secret):
+        print('Forbidden: Invalid requester')
         return {
             "statusCode": 403,
             "body": 'Forbidden'
