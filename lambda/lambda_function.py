@@ -1,5 +1,6 @@
 import json
 import boto3
+import os
 
 s3_client = boto3.client('s3')
 dynamodb = boto3.resource('dynamodb')
@@ -28,7 +29,21 @@ def get_todays_car(user_date):
     todays_car = response['Items'][0]
     return todays_car
 
+def check_secret(secret):
+    if secret == os.environ['CloudFrontSecret']:
+        return True
+    else:
+        return False
+
 def lambda_handler(event, context):
+    # Reject request if CloudFront secrect missing from headers
+    headers = event['headers']
+    secret = headers['X-CF-Secret'] if 'X-CF-Secret' in headers else headers['x-cf-secret'] if 'x-cf-secret' in headers else ''
+    if secret == '' or not check_secret(secret):
+        return {
+            "statusCode": 403,
+            "body": 'Forbidden'
+        }
     headers = { "Content-Type: image/jpeg" }
     bucket = 'car-game-data'
     # The date from the user's browser
@@ -56,9 +71,9 @@ def lambda_handler(event, context):
         # encode_data = base64.b64encode(json_data.encode('utf-8')).decode('utf-8')
         headers = {
             "Content-Type": "application/json",
-            "Access-Control-Allow-Headers": "Content-Type",
+            "Access-Control-Allow-Headers": "Content-Type,Authorization",
             "Access-Control-Allow-Origin": "*",
-            "Access-Control-Allow-Methods": "GET"
+            "Access-Control-Allow-Methods": "GET,POST,OPTIONS"
         }
         return {
             "headers": headers,
